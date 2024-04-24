@@ -38,7 +38,7 @@ from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Sorting import insertionsort as ins
 from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
-from datetime import datetime as datetime
+from datetime import datetime
 from DISClib.Algorithms.Sorting import quicksort as quk
 assert cf
 
@@ -60,11 +60,19 @@ def new_data_structs(tipo):
                'multi-locations': None,
                'jobs': None,
                'employment-types':None,
-               'offers': None
+               'arbolFechas': None,
+               'mapaPais': None,
+               'mapaCiudad': None,
+               'arbolTamaño': None,
+               'arbolSalary': None,
+               'mapaHabilidad': None
               }    
 
-    catalog['jobs'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
-    catalog['skills'] = mp.newMap(10000,
+    catalog['jobs'] =  mp.newMap(17,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria)
+    catalog['skills'] = mp.newMap(5,
                                    maptype='CHAINING',
                                    loadfactor=4,
                                    cmpfunction=sort_criteria)
@@ -74,10 +82,33 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-    catalog['employment-types'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria)
-
-
-
+    catalog['employment-types'] = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+    
+    catalog['arbolFechas'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    
+    catalog['mapaPais'] = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+    catalog['mapaCiudad'] = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+    catalog['arbolTamaño'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    
+    catalog['arbolSalary'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    
+    catalog['mapaHabilidad'] = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
 
     return catalog
 
@@ -96,69 +127,56 @@ def add_skills(catalog, skills):
     """
     Función para agregar nuevos elementos a la lista
     """
+    habilidad = skills['name']
+    contiene = mp.contains(catalog['mapaHabilidad'], habilidad)
+    if contiene == False:
+        arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+        lista_id = lt.newList('Array_List')
+        lt.addLast(lista_id, skills['id'])
+        om.put(arbol_nivel, skills['level'], lista_id)
+        mp.put(catalog['mapaHabilidad'], habilidad, arbol_nivel)
+    else:
+        pareja = mp.get(catalog['mapaHabilidad'], habilidad)
+        arbol_nivel = me.getValue(pareja)
+        contiene_nivel = om.contains(arbol_nivel, skills['level'])
+        if contiene_nivel == False:
+            lista_id = lt.newList('Array_List')
+            lt.addLast(lista_id, skills['id'])
+            om.put(arbol_nivel, skills['level'], lista_id)
+        else:
+            pareja_nivel = om.get(pareja, skills['level'])
+            lista_id_nivel = me.getValue(pareja_nivel)
+            lt.addLast(lista_id_nivel, skills['id'])
+    
     mp.put(catalog['skills'],skills['id'],skills)
 
-def add_jobs(data_structs, data):
-    occurreddate = data["published_at"]
-    oferta_date = datetime.strptime(occurreddate, "%Y-%m-%d")
-    entry = om.get(map)
-
-def updateDateIndex(map, job):
-    """
-    Se toma la fecha del crimen y se busca si ya existe en el arbol
-    dicha fecha.  Si es asi, se adiciona a su lista de crimenes
-    y se actualiza el indice de tipos de crimenes.
-
-    Si no se encuentra creado un nodo para esa fecha en el arbol
-    se crea y se actualiza el indice de tipos de crimenes
-    """
-    occurreddate = job['OCCURRED_ON_DATE']
-    jobdate = datetime.strptime(occurreddate, '%Y-%m-%d')
-    entry = om.get(map, jobdate.date())
-    if entry is None:
-        datentry = newDataEntry(job)
-        om.put(map, jobdate.date(), datentry)
+def add_jobs(catalog, data):
+    fecha = data['published_at']
+    data['published_at'] = datetime.strptime(fecha, '%Y-%m-%dT%H:%M:%S.%fZ')
+    if not om.contains(catalog['arbolFecha'], data['published_at']):
+        lista_fecha = lt.newList('ARRAY_LIST')
+        om.put(catalog['arbolFecha'], data['published_at'], lista_fecha)
     else:
-        datentry = me.getValue(entry)
-    addDateIndex(datentry, job)
-    return map
+        lista_fecha = me.getValue(om.get(catalog['arbolFecha'], data['published_at']))
+    lt.addLast(lista_fecha, data)
+    
+def convertirSalario(salario, moneda):
+    if moneda == 'eur':
+        salario = salario *1.07
+    elif moneda == 'pln':
+        salario = salario*0.25
+    
+    return salario
 
-def newDataEntry(crime):
-    """
-    Crea una entrada en el indice por fechas, es decir en el arbol
-    binario.
-    """
-    entry = {'dateIndex': None, 'jobs': None}
-    entry['dateIndex'] = m.newMap(numelements=30,
-                                     maptype='PROBING',
-                                     cmpfunction=compareOffenses)
-    entry['jobs'] = lt.newList('SINGLE_LINKED', compareDates)
-    return entry
 
-def addDateIndex(datentry, job):
-    """
-    Actualiza un indice de tipo de crimenes.  Este indice tiene una lista
-    de crimenes y una tabla de hash cuya llave es el tipo de crimen y
-    el valor es una lista con los crimenes de dicho tipo en la fecha que
-    se está consultando (dada por el nodo del arbol)
-    """
-    lst = datentry['jobs']
-    lt.addLast(lst, job)
-    offenseIndex = datentry['dateIndex']
-    offentry = mp.get(offenseIndex, job['OFFENSE_CODE_GROUP'])
-    if (offentry is None):
-        entry = newOffenseEntry(job['published_at'], job)
-        lt.addLast(entry['lstoffenses'], crime)
-        m.put(offenseIndex, job['published_at'], entry)
-    else:
-        entry = me.getValue(offentry)
-        lt.addLast(entry['lstoffenses'], job)
-    return datentry
-
-def add_employment(data_structs,oferta):
+def add_employment(catalog, oferta):
     salario = oferta['salary_from']
-    if salario != '':
-        om.put(data_structs['employment-types'],salario,oferta['id'])
+    currency = oferta['currency_salary']
+    if currency != 'usd' and currency != '' and currency != ' ':
+        cambio = taza[currency]
+        oferta['salary_from'] = cambio * salario
+    if salario != '' and salario != ' ':
+        om.put(catalog['arbolSalary'], oferta['salary_from'], oferta['id'])
 
 def new_data(id, info):
     """
