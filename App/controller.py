@@ -130,35 +130,12 @@ def get_data(control, id):
     pass
 
 
-def req_1(control,n,pais,exp):
+def req_1(control, initial_Date, final_Date):
     """
     Retorna el resultado del requerimiento 1
     """
-    start_time = get_time()
-    memflag= True
-    if memflag is True:
-        tracemalloc.start()
-        start_memory= get_memory()
-
-    lista1 = model.req_1(control['model'],n,pais,exp)
-    
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
-        
-    end_time = get_time()
-    deltaTime = delta_time(start_time, end_time)
-    print(deltaTime,"[ms]")
-    if memflag:
-        Delta_memory = delta_memory(stop_memory, start_memory)
-        print("Memoria [kB]:  ", Delta_memory)
-    llaves= model.mp.keySet(lista1[2])
-    for oferta in model.lt.iterator(llaves):
-        pareja= model.mp.get(lista1[2], oferta)
-        valor= model.me.getValue(pareja)
-        print(llaves, valor)
-    
-    return lista1
+    totjobs, lista1 = model.req_1(control, initial_Date, final_Date)
+    return totjobs, lista1
     
     
     
