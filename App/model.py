@@ -74,7 +74,7 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-    catalog['emplyment-types'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria)
+    catalog['employment-types'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria)
 
 
 
