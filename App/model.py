@@ -38,6 +38,7 @@ from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Sorting import insertionsort as ins
 from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
+from datetime import datetime as datetime
 from DISClib.Algorithms.Sorting import quicksort as quk
 assert cf
 
@@ -49,13 +50,36 @@ dos listas, una para los videos, otra para las categorias de los mismos.
 # Construccion de modelos
 
 
-def new_data_structs():
+def new_data_structs(tipo):
     """
     Inicializa las estructuras de datos del modelo. Las crea de
     manera vacía para posteriormente almacenar la información.
     """
     #TODO: Inicializar las estructuras de datos
-    pass
+    catalog = {'skills':None,
+               'multi-locations': None,
+               'jobs': None,
+               'employment-types':None,
+               'offers': None
+              }    
+
+    catalog['jobs'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
+    catalog['skills'] = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria)
+
+    catalog['multi-locations'] = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+    catalog['emplyment-types'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria)
+
+
+
+
+    return catalog
 
 
 # Funciones para agregar informacion al modelo
@@ -65,15 +89,30 @@ def add_data(data_structs, data):
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
+    
     pass
 
+def add_skills(catalog, skills):
+    """
+    Función para agregar nuevos elementos a la lista
+    """
+    mp.put(catalog['skills'],skills['id'],skills)
 
-# Funciones para creacion de datos
+def add_jobs(data_structs,data):
+    occurreddate = data["published_at"]
+    oferta_date = datetime.strptime(occurreddate, "%Y-%m-%d")
+    entry = om.get(map)
+
+def add_employment(data_structs,oferta):
+    salario = oferta['salary_from']
+    if salario != '':
+        om.put(data_structs['employment-types'],salario,oferta['id'])
 
 def new_data(id, info):
     """
     Crea una nueva estructura para modelar los datos
     """
+     
     #TODO: Crear la función para estructurar los datos
     pass
 
@@ -172,7 +211,7 @@ def compare(data_1, data_2):
 # Funciones de ordenamiento
 
 
-def sort_criteria(data_1, data_2):
+def sort_criteria(id, entry):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
 
     Args:
@@ -183,9 +222,55 @@ def sort_criteria(data_1, data_2):
         _type_: _description_
     """
     #TODO: Crear función comparadora para ordenar
+    identry = me.getKey(entry)
+    if id == identry:
+        return 0
+    elif id > identry:
+        return 1
+    else:
+        return -1
     pass
 
+def sort_criteria_date(date1, date2):
+    """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
 
+    Args:
+        data1 (_type_): _description_
+        data2 (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    #TODO: Crear función comparadora para ordenar
+    dateentry = date1['published_at']
+    datecurrent = date2['published_at']    
+    if dateentry == datecurrent:
+        return 0
+    elif datecurrent > dateentry:
+        return 1
+    else:
+        return -1
+
+
+def sort_criteria(fecha, entry):
+    """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
+
+    Args:
+        data1 (_type_): _description_
+        data2 (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    #TODO: Crear función comparadora para ordenar
+    identry = me.getKey(entry)
+    if id == identry:
+        return 0
+    elif id > identry:
+        return 1
+    else:
+        return -1
+    pass
 def sort(data_structs):
     """
     Función encargada de ordenar la lista con los datos
