@@ -187,12 +187,16 @@ def data_size(data_structs):
     pass
 
 
-def req_1(data_structs):
+def req_1(data_structs, initialDate, finalDate):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    pass
+    lst = om.values(data_structs, initialDate, finalDate)
+    totjobs = 0
+    for job in lt.iterator(lst):
+        totjobs +=lt.size(job['jobs'])
+    return totjobs, lst
 
 
 def req_2(data_structs):
