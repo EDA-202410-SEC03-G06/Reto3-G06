@@ -151,6 +151,7 @@ def add_skills(catalog, skills):
     mp.put(catalog['skills'],skills['id'],skills)
 
 def add_jobs(catalog, data):
+    # Se crea un arbol, cuyas llaves son la fecha en la que se publicaron y sus valores son una lista de datos. 
     fecha = data['published_at']
     data['published_at'] = datetime.strptime(fecha, '%Y-%m-%dT%H:%M:%S.%fZ')
     if not om.contains(catalog['arbolFecha'], data['published_at']):
@@ -159,7 +160,32 @@ def add_jobs(catalog, data):
     else:
         lista_fecha = me.getValue(om.get(catalog['arbolFecha'], data['published_at']))
     lt.addLast(lista_fecha, data)
+    # Se crea un mapa, cuyas llaves son el pais, y sus valores son un mapa cuyas cuyas llaves son los niveles de experticia y valores lista de datos
+    pais = data['country_code']
+    experticia_data = data['experience_level']
+    if not om.contains(catalog['mapaPais'], pais):
+        experticia = mp.newMap(11,
+                                maptype='CHAINING',
+                                loadfactor=4,
+                                cmpfunction=sort_criteria
+                                )
+        junior = lt.newList('ARRAY_LIST')
+        mid = lt.newList('ARRAY_LIST')
+        senior = lt.newList('ARRAY_LIST')
+        
+        mp.put(experticia, 'junior', junior)
+        mp.put(experticia, 'mid', mid)
+        mp.put(experticia, 'senior', senior)
+        
+        mp.put(catalog['mapaPais'], pais, experticia)
     
+    paisMapa = me.getValue(om.get(catalog['mapaPais'], pais))
+    listaExperticia = me.getValue(om.get(paisMapa, experticia_data))
+        
+    lt.addLast(listaExperticia, data)
+    #
+        
+        
 def convertirSalario(salario, moneda):
     if moneda == 'eur':
         salario = salario *1.07
@@ -172,11 +198,12 @@ def convertirSalario(salario, moneda):
 def add_employment(catalog, oferta):
     salario = oferta['salary_from']
     currency = oferta['currency_salary']
-    if currency != 'usd' and currency != '' and currency != ' ':
-        cambio = taza[currency]
-        oferta['salary_from'] = cambio * salario
+   
     if salario != '' and salario != ' ':
+        oferta['salary_from'] = convertirSalario(float(salario), currency)
+        oferta['currency_salary'] = 'usd'
         om.put(catalog['arbolSalary'], oferta['salary_from'], oferta['id'])
+    mp.put(catalog['multi-locations'], oferta['id'], oferta)
 
 def new_data(id, info):
     """
