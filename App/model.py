@@ -115,12 +115,12 @@ def new_data_structs(tipo):
 
 # Funciones para agregar informacion al modelo
 
-def add_multilocations(data_structs, data):
+def add_multilocations(catalog, data):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
-    
+    mp.put(catalog['multilocations'],data['id'], data)
 
 def add_skills(catalog, skills):
     """
@@ -150,6 +150,7 @@ def add_skills(catalog, skills):
     mp.put(catalog['skills'],skills['id'],skills)
 
 def add_jobs(catalog, data):
+    mp.put(catalog['jobs'], data['id'], data)
     # Se crea un arbol, cuyas llaves son la fecha en la que se publicaron y sus valores son una lista de datos. 
     fecha = data['published_at']
     data['published_at'] = datetime.strptime(fecha, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -165,18 +166,22 @@ def add_jobs(catalog, data):
     if not mp.contains(catalog['mapaPais'], pais):
         experticia = {'junior': None,
                         'mid': None,
-                        'senior': None
+                        'senior': None,
+                        'indeterminado': None
                         }
         experticia['junior'] = lt.newList('ARRAY_LIST')
         experticia['mid'] = lt.newList('ARRAY_LIST')
         experticia['senior'] = lt.newList('ARRAY_LIST')
-        
+        experticia['indeterminado'] = lt.newList('ARRAY_LIST')
         mp.put(catalog['mapaPais'], pais, experticia)
     
     paisLista = me.getValue(om.get(catalog['mapaPais'], pais))
     lt.addLast(paisLista[experticia_data], data)
+    lt.addLast(paisLista['indeterminado'], data)
+    
     # Mapa cuyas llaves son ciudades, y adentro se puede buscar en 3 categorias, todos, ubicacion, fechas:
     ciudad = data['ciudad']
+    work_type = data['workplace_type']
     if not mp.contains(catalog['mapaCiudad'], ciudad):
         fecha_ubicacion = {'fecha': None,
                            'ubicacion': None,
@@ -187,10 +192,47 @@ def add_jobs(catalog, data):
                                         'partly_remote': None,
                                         'office':None
                                         }
+        fecha_ubicacion['ubicacion']['remote'] = lt.newList('ARRAY_LIST')
+        fecha_ubicacion['ubicacion']['partly_remote'] = lt.newList('ARRAY_LIST')
+        fecha_ubicacion['ubicacion']['office'] = lt.newList('ARRAY_LIST')
         
+        fecha_ubicacion['todos'] = lt.newList()
+    mapa = me.getvalue(mp.get(catalog['mapaCiudad'],ciudad))
+    if not om.contains(mapa['fecha'], data['published_at']):
+        lista_fecha_ciudad = lt.newList('ARRAY_LIST')
+        om.put(catalog['arbolFecha'], data['published_at'], lista_fecha_ciudad)
+    else:
+        lista_fecha_ciudad = me.getValue(om.get(mapa['fecha'], data['published_at']))
+    lt.addLast(lista_fecha_ciudad, data)
+    lt.addLast(mapa['ubicacion'][work_type], data)
+    lt.addLast(mapa['todos'], data)
+    
+    #crear un arbol por tamaño de la empresa, si el tamaño es undefined este se categorizara con -1
+    tamaño = data['company_size']
+    empresa = data['company_name']
+    if tamaño == 'Undefined':
+        tamaño = -1
+    else:
+        tamaño = float(tamaño)
         
-        
-        
+    if not om.contains(catalog['arbolTamaño'], tamaño):
+        mapa_companys = mp.newMap(1000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+        om.put(catalog['arbolTamaño'], tamaño, mapa_companys)
+    else:
+        mapa_companys = me.getValue(om.get(catalog['arbolTamaño'], tamaño))
+    
+    if not mp.contains(mapa_companys, empresa):
+        lista_empresa = lt.newList('ARRAY_LIST')
+        mp.put(mapa_companys, empresa, lista_empresa)
+    else:
+        lista_empresa = me.getValue(mapa_companys, empresa)
+    lt.addLast(lista_empresa, data)
+    
+    
         
 def convertirSalario(salario, moneda):
     if moneda == 'eur':
@@ -201,15 +243,15 @@ def convertirSalario(salario, moneda):
     return salario
 
 
-def add_employment(catalog, oferta):
+def add_employment_types(catalog, oferta):
     salario = oferta['salary_from']
     currency = oferta['currency_salary']
-   
+    
     if salario != '' and salario != ' ':
         oferta['salary_from'] = convertirSalario(float(salario), currency)
         oferta['currency_salary'] = 'usd'
         om.put(catalog['arbolSalary'], oferta['salary_from'], oferta['id'])
-    mp.put(catalog['multi-locations'], oferta['id'], oferta)
+    mp.put(catalog['employment-types'], oferta['id'], oferta)
 
 def new_data(id, info):
     """
