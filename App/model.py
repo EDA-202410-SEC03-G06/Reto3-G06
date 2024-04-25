@@ -115,13 +115,12 @@ def new_data_structs(tipo):
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_multilocations(data_structs, data):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
     
-    pass
 
 def add_skills(catalog, skills):
     """
@@ -160,30 +159,37 @@ def add_jobs(catalog, data):
     else:
         lista_fecha = me.getValue(om.get(catalog['arbolFecha'], data['published_at']))
     lt.addLast(lista_fecha, data)
-    # Se crea un mapa, cuyas llaves son el pais, y sus valores son un mapa cuyas cuyas llaves son los niveles de experticia y valores lista de datos
+    # Se crea un mapa,cuyas llaves son el pais, y sus valores son un diccionario cuyas cuyas llaves son los niveles de experticia y valores lista de datos
     pais = data['country_code']
     experticia_data = data['experience_level']
-    if not om.contains(catalog['mapaPais'], pais):
-        experticia = mp.newMap(11,
-                                maptype='CHAINING',
-                                loadfactor=4,
-                                cmpfunction=sort_criteria
-                                )
-        junior = lt.newList('ARRAY_LIST')
-        mid = lt.newList('ARRAY_LIST')
-        senior = lt.newList('ARRAY_LIST')
-        
-        mp.put(experticia, 'junior', junior)
-        mp.put(experticia, 'mid', mid)
-        mp.put(experticia, 'senior', senior)
+    if not mp.contains(catalog['mapaPais'], pais):
+        experticia = {'junior': None,
+                        'mid': None,
+                        'senior': None
+                        }
+        experticia['junior'] = lt.newList('ARRAY_LIST')
+        experticia['mid'] = lt.newList('ARRAY_LIST')
+        experticia['senior'] = lt.newList('ARRAY_LIST')
         
         mp.put(catalog['mapaPais'], pais, experticia)
     
-    paisMapa = me.getValue(om.get(catalog['mapaPais'], pais))
-    listaExperticia = me.getValue(om.get(paisMapa, experticia_data))
+    paisLista = me.getValue(om.get(catalog['mapaPais'], pais))
+    lt.addLast(paisLista[experticia_data], data)
+    # Mapa cuyas llaves son ciudades, y adentro se puede buscar en 3 categorias, todos, ubicacion, fechas:
+    ciudad = data['ciudad']
+    if not mp.contains(catalog['mapaCiudad'], ciudad):
+        fecha_ubicacion = {'fecha': None,
+                           'ubicacion': None,
+                           'todos': None
+                           }
+        fecha_ubicacion['fecha'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+        fecha_ubicacion['ubicacion'] = {'remote': None,
+                                        'partly_remote': None,
+                                        'office':None
+                                        }
         
-    lt.addLast(listaExperticia, data)
-    #
+        
+        
         
         
 def convertirSalario(salario, moneda):
