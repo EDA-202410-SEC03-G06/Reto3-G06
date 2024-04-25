@@ -130,7 +130,7 @@ def add_skills(catalog, skills):
     contiene = mp.contains(catalog['mapaHabilidad'], habilidad)
     if contiene == False:
         arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=compareDates)
-        lista_id = lt.newList('Array_List')
+        lista_id = lt.newList('ARRAY_LIST')
         lt.addLast(lista_id, skills['id'])
         om.put(arbol_nivel, skills['level'], lista_id)
         mp.put(catalog['mapaHabilidad'], habilidad, arbol_nivel)
@@ -139,11 +139,11 @@ def add_skills(catalog, skills):
         arbol_nivel = me.getValue(pareja)
         contiene_nivel = om.contains(arbol_nivel, skills['level'])
         if contiene_nivel == False:
-            lista_id = lt.newList('Array_List')
+            lista_id = lt.newList('ARRAY_LIST')
             lt.addLast(lista_id, skills['id'])
             om.put(arbol_nivel, skills['level'], lista_id)
         else:
-            pareja_nivel = om.get(pareja, skills['level'])
+            pareja_nivel = mp.get(pareja, skills['level'])
             lista_id_nivel = me.getValue(pareja_nivel)
             lt.addLast(lista_id_nivel, skills['id'])
     
@@ -277,8 +277,8 @@ def data_size(data_structs):
     Retorna el tamaño de la lista de datos
     """
     #TODO: Crear la función para obtener el tamaño de una lista
-    pass
-
+    valores = mp.keySet(data_structs)
+    return lt.size(valores)
 
 def req_1(data_structs, initialDate, finalDate):
     """
@@ -423,25 +423,6 @@ def sort_criteria_date(date1, date2):
         return -1
 
 
-def sort_criteria(fecha, entry):
-    """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
-
-    Args:
-        data1 (_type_): _description_
-        data2 (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    #TODO: Crear función comparadora para ordenar
-    identry = me.getKey(entry)
-    if id == identry:
-        return 0
-    elif id > identry:
-        return 1
-    else:
-        return -1
-    pass
 def sort(data_structs):
     """
     Función encargada de ordenar la lista con los datos
