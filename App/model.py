@@ -57,10 +57,10 @@ def new_data_structs(tipo):
     """
     #TODO: Inicializar las estructuras de datos
     catalog = {'skills':None,
-               'multi-locations': None,
+               'multilocations': None,
                'jobs': None,
                'employment-types':None,
-               'arbolFechas': None,
+               'arbolFecha': None,
                'mapaPais': None,
                'mapaCiudad': None,
                'arbolTamaño': None,
@@ -77,7 +77,7 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria)
 
-    catalog['multi-locations'] = mp.newMap(10000,
+    catalog['multilocations'] = mp.newMap(10000,
                                    maptype='CHAINING',
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
@@ -88,7 +88,7 @@ def new_data_structs(tipo):
                                    cmpfunction=sort_criteria
                                    )
     
-    catalog['arbolFechas'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    catalog['arbolFecha'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
     
     catalog['mapaPais'] = mp.newMap(10000,
                                    maptype='CHAINING',
@@ -115,7 +115,7 @@ def new_data_structs(tipo):
 
 # Funciones para agregar informacion al modelo
 
-def add_multilocations(catalog, data):
+def add_locations(catalog, data):
     """
     Función para agregar nuevos elementos a la lista
     """
@@ -143,7 +143,7 @@ def add_skills(catalog, skills):
             lt.addLast(lista_id, skills['id'])
             om.put(arbol_nivel, skills['level'], lista_id)
         else:
-            pareja_nivel = mp.get(pareja, skills['level'])
+            pareja_nivel = om.get(arbol_nivel, skills['level'])
             lista_id_nivel = me.getValue(pareja_nivel)
             lt.addLast(lista_id_nivel, skills['id'])
     
@@ -180,7 +180,7 @@ def add_jobs(catalog, data):
     lt.addLast(paisLista['indeterminado'], data)
     
     # Mapa cuyas llaves son ciudades, y adentro se puede buscar en 3 categorias, todos, ubicacion, fechas:
-    ciudad = data['ciudad']
+    ciudad = data['city']
     work_type = data['workplace_type']
     if not mp.contains(catalog['mapaCiudad'], ciudad):
         fecha_ubicacion = {'fecha': None,
@@ -197,7 +197,8 @@ def add_jobs(catalog, data):
         fecha_ubicacion['ubicacion']['office'] = lt.newList('ARRAY_LIST')
         
         fecha_ubicacion['todos'] = lt.newList()
-    mapa = me.getvalue(mp.get(catalog['mapaCiudad'],ciudad))
+        mp.put(catalog['mapaCiudad'], ciudad, fecha_ubicacion)
+    mapa = me.getValue(mp.get(catalog['mapaCiudad'], ciudad))
     if not om.contains(mapa['fecha'], data['published_at']):
         lista_fecha_ciudad = lt.newList('ARRAY_LIST')
         om.put(catalog['arbolFecha'], data['published_at'], lista_fecha_ciudad)
@@ -229,7 +230,8 @@ def add_jobs(catalog, data):
         lista_empresa = lt.newList('ARRAY_LIST')
         mp.put(mapa_companys, empresa, lista_empresa)
     else:
-        lista_empresa = me.getValue(mapa_companys, empresa)
+        pareja_empresa = mp.get(mapa_companys, empresa)
+        lista_empresa = me.getValue(pareja_empresa)
     lt.addLast(lista_empresa, data)
     
     
