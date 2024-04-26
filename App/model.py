@@ -282,15 +282,17 @@ def data_size(data_structs):
     valores = mp.keySet(data_structs)
     return lt.size(valores)
 
-def req_1(data_structs, initialDate, finalDate):
+def req_1(catalog, initialDate, finalDate):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    lst = om.values(data_structs, initialDate, finalDate)
+    initialDate = datetime.strptime(initialDate,'%Y-%m-%d')
+    finalDate= datetime.strptime(finalDate, '%Y-%m-%d')
+    lst = om.values(catalog["arbolFecha"], initialDate, finalDate)
     totjobs = 0
-    for job in lt.iterator(lst):
-        totjobs +=lt.size(job['jobs'])
+    for date in lt.iterator(lst):
+        totjobs +=lt.size(date)
     return totjobs, lst
 
 

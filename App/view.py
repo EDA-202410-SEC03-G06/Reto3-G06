@@ -88,17 +88,10 @@ def print_req_1(control):
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    mem = int(input('Quiere observar el uso de memoria?\n 1: Si\n 2: No'))
-    if mem == 1:
-        memflag = True
-    else:
-        memflag = False
-    pais = input('Inserte el codigo del pais: ')
-    exp = input('Que nivel de experiencia busca?(junior,mid,senior): ')
-    n = int(input('Ingrese la cantidad de ofertas que desea ver: '))
-    tup = controller.req_1(control, n, pais, exp)
-    
-    return tup
+    initial_Date = input('Ingrese una fecha inicial: ')
+    final_Date = input('Ingrese una fecha final: ')
+    result = controller.req_1(control['model'], initial_Date, final_Date)
+    print('El total de ofertas en ese rango de fechas es de: '+ result[0])
 
 
 def print_req_2(control):
@@ -280,9 +273,8 @@ if __name__ == "__main__":
         
         elif int(inputs) == 2:
 
-            tup = print_req_1(control)
-            print('La cantidad de ofertas en el pais que escogio: ',tup[0])
-            print('La cantidad de ofertas según la condición escogida', tup[1])
+            print_req_1(control)
+            
             
             
         elif int(inputs) == 3:
