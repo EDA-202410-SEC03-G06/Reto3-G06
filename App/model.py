@@ -160,6 +160,8 @@ def add_jobs(catalog, data):
     else:
         lista_fecha = me.getValue(om.get(catalog['arbolFecha'], data['published_at']))
     lt.addLast(lista_fecha, data)
+    '''
+
     # Se crea un mapa,cuyas llaves son el pais, y sus valores son un diccionario cuyas cuyas llaves son los niveles de experticia y valores lista de datos
     pais = data['country_code']
     experticia_data = data['experience_level']
@@ -201,7 +203,7 @@ def add_jobs(catalog, data):
     mapa = me.getValue(mp.get(catalog['mapaCiudad'], ciudad))
     if not om.contains(mapa['fecha'], data['published_at']):
         lista_fecha_ciudad = lt.newList('ARRAY_LIST')
-        om.put(catalog['arbolFecha'], data['published_at'], lista_fecha_ciudad)
+        om.put(mapa['fecha'], data['published_at'], lista_fecha_ciudad)
     else:
         lista_fecha_ciudad = me.getValue(om.get(mapa['fecha'], data['published_at']))
     lt.addLast(lista_fecha_ciudad, data)
@@ -233,9 +235,9 @@ def add_jobs(catalog, data):
         pareja_empresa = mp.get(mapa_companys, empresa)
         lista_empresa = me.getValue(pareja_empresa)
     lt.addLast(lista_empresa, data)
+    '''
     
     
-        
 def convertirSalario(salario, moneda):
     if moneda == 'eur':
         salario = salario *1.07
@@ -292,7 +294,9 @@ def req_1(catalog, initialDate, finalDate):
     lst = om.values(catalog["arbolFecha"], initialDate, finalDate)
     totjobs = 0
     for date in lt.iterator(lst):
-        totjobs +=lt.size(date)
+        totjobs += lt.size(date)
+        print(lt.size(date))
+        
     return totjobs, lst
 
 
@@ -369,7 +373,7 @@ def compareDates(date1, date2):
     """
     if (date1 == date2):
         return 0
-    elif (date1 > date2):
+    elif (date1 < date2):
         return 1
     else:
         return -1

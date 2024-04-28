@@ -135,7 +135,7 @@ def req_1(control, initial_Date, final_Date):
     """
     Retorna el resultado del requerimiento 1
     """
-    totjobs, lista1 = model.req_1(control, initial_Date, final_Date)
+    totjobs, lista1 = model.req_1(control['model'], initial_Date, final_Date)
     return totjobs, lista1
     
     

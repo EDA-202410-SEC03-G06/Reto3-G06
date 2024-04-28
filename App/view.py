@@ -90,8 +90,8 @@ def print_req_1(control):
     # TODO: Imprimir el resultado del requerimiento 1
     initial_Date = input('Ingrese una fecha inicial: ')
     final_Date = input('Ingrese una fecha final: ')
-    result = controller.req_1(control['model'], initial_Date, final_Date)
-    print('El total de ofertas en ese rango de fechas es de: '+ result[0])
+    result = controller.req_1(control, initial_Date, final_Date)
+    print('El total de ofertas en ese rango de fechas es de: '+ str(result[0]))
 
 
 def print_req_2(control):
@@ -99,17 +99,7 @@ def print_req_2(control):
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
-    mem = int(input('Quiere observar el uso de memoria?\n 1: Si\n 2: No'))
-    if mem == 1:
-        memflag = True
-    else:
-        memflag = False
-    city = input('Inserte el nombre de la ciudad: ')
-    empresa = input('Ingrese el nombre de la empresa: ')
-    n = int(input('Ingrese la cantidad de ofertas que desea ver: '))    
-    tup = controller.req_2(control, n , empresa, city, memflag)
     
-    return tup
 
 
 def print_req_3(control):
