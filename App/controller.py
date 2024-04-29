@@ -64,13 +64,12 @@ def load_data(control,size_archivo):
         arc = "large"
         
     
+    
     skills = load_skills(control['model'], arc)
     jobs = load_jobs(control["model"], arc)
     locations = load_locations(control['model'], arc)
     employments = load_employment_type(control['model'], arc)
     return (skills, jobs, locations, employments)
-
-    
 
 def load_skills(catalog,arc):
     booksfile = cf.data_dir + str(arc+"-skills.csv")
