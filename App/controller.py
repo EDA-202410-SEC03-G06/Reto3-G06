@@ -96,13 +96,13 @@ def load_locations(catalog,arc):
     for multilocation in input_file:
         model.add_locations(catalog, multilocation)
 
-    return model.data_size(catalog['multi-locations'])
+    return model.data_size(catalog['multilocations'])
 
 def load_employment_type(catalog,arc):
     booksfile = cf.data_dir + str(arc+"-employments_types.csv")
     input_file = csv.DictReader(open(booksfile, encoding="utf-8"),delimiter=";")
     for employment in input_file:
-        model.add_employment(catalog, employment)
+        model.add_employment_types(catalog, employment)
     return model.data_size(catalog['employment-types'])
 
 

@@ -353,8 +353,7 @@ def req_3(data_structs, n, pais, exp):
     
     pareja = mp.get(catalog,pais)
     val_pais = me.getValue(pareja)
-    pareja_exp = mp.get(val_pais,exp)
-    valores = me.getValue(pareja_exp)
+    valores = val_pais[exp]
     
     count = 1
     merg.sort(valores,compare)

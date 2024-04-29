@@ -289,16 +289,15 @@ if __name__ == "__main__":
 
         elif int(inputs) == 4:
             tup = print_req_3(control)
-            print('La cantidad de ofertas total con estos requerimientos es de:',tup[0])
-            print('La cantidad de ofertas "junior" es',tup[1]['value'])
-            print('La cantidad de ofertas "mid" es',tup[2]['value'])
-            print('La cantidad de ofertas "senior" es',tup[3]['value'])
-            prnt = tup[4]['first']
-            for i in range(0,tup[0]):
+            print('La cantidad de ofertas segun los requisitos es',tup[0])
+            print(tup[1])
+            """
+            prnt = tup[1]
+            for i in range(0,tup[1]):
                 info = prnt['info']
                 print(info)
                 prnt = prnt['next']
-            
+            """
             
         elif int(inputs) == 5:
             print_req_4(control)
