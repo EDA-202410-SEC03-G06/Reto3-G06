@@ -383,11 +383,76 @@ def req_5(data_structs):
     pass
 
 
-def req_6(catalog, ):
+def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     """
     Función que soluciona el requerimiento 6
     """
-    # TODO: Realizar el requerimiento 6
+    emptype = catalog['employment-types']
+    skills = catalog['skills']
+    ofertas = lt.newList("ARRAY_LIST")
+    salarios = mp.newMap()
+    ciudades = mp.newMap()
+    n_ciudades = lt.newList("ARRAY_LIST")
+    ofertas_ciudad = lt.newList()
+    
+    #filtrar los datos
+    lst = om.keys(catalog["arbolFecha"], fecha_in, fecha_fin)
+    lst_salario = om.values(catalog['arbolSalary'],sal_min,sal_max)
+    for oferta in lt.iterator(lst_salario):
+        mp.put(salarios,oferta['id'],oferta)
+    
+    for lista in lt.iterator(lst):
+        for oferta in lt.iterator(lista):
+            ispresent =mp.contains(salarios,oferta['id'])
+            #crear una lista de ofertas por ciudad
+            if ispresent:
+                lt.addLast(ofertas,oferta)
+                    
+            incitylist = mp.contains(ciudades,oferta['city'])
+            if incitylist==False:
+                mp.put(ciudades,oferta['city'], 1)
+            elif incitylist:
+                valor = mp.get(ciudades,oferta['city'])
+                cant = me.getValue(valor)
+                cant +=1
+                me.setValue(valor,cant)
+    #fin filtro
+
+    #Ordenar las ciudades y filtrar a n
+    city_list = mp.keySet(ciudades)
+    ordered_city = lt.newList('ARRAY_LIST')
+    for city in lt.iterator(city_list):
+        pareja = mp.get(ciudades,city)  
+        valor = me.getValue(pareja)
+        lt.addLast(city_list,{'city':city,'count':valor})
+    merg.sort(ordered_city,sort_criteria_req6)  
+
+    for city in lt.iterator(ordered_city):
+        if lt.size(n_ciudades)<n:
+            lt.addLast(n_ciudades,city['city'])
+        else:
+            break
+    merg.sort(n_ciudades,sort)
+        
+    #crear el formato para la lista
+    ciudad_1 = lt.firstElement(n_ciudades)
+    for oferta in lt.iterator(ofertas):
+        if oferta['city']==ciudad_1:
+            pareja_emp = mp.get(emptype,oferta['id'])
+            oferta_emp = me.getValue(pareja_emp)
+            pareja_skill = mp.get(skills,oferta['id'])
+            oferta_skill = me.getValue(pareja_skill)
+            datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
+                     'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
+                     'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
+                     'Salary':oferta_emp['salary_to'],'Skill':oferta_skill['name']}
+
+
+    return (lt.size(ofertas),lt.size(city_list),n_ciudades)
+    
+    
+        
+     
     
 
 
@@ -473,9 +538,13 @@ def sort_criteria_salary(salary1, salary2):
     else:
         return -1
 
-def sort(data_structs):
+def sort(data_1,data_2):
     """
     Función encargada de ordenar la lista con los datos
     """
     #TODO: Crear función de ordenamiento
-    pass
+    return data_1>data_2
+
+def sort_criteria_req6(data_1,data_2):
+    return data_1['count']>data_2['count']
+

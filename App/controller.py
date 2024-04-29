@@ -242,29 +242,21 @@ def req_5(catalog, city, fecha_inicial, fecha_final):
     
     return respuesta
 
-def req_6(control,n,exp,fecha):
+def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     """
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    memflag=False
-    start_time = get_time()
-    if memflag is True:
-        tracemalloc.start()
-        start_memory = get_memory()
+    start_time = get_time()   
 
-    total_ofertas, cant_ciudades, cant_empresas, mayor, menor, lista_c = model.req_6(control['model'],n,exp,fecha)
+    total, total_ciudades, n_ciudades= model.req_6(catalog['model'],n,fecha_in,fecha_fin,sal_min,sal_max)
     # calculando la diferencia en tiempo 
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
+
     
     end_time = get_time()   
     deltaTime = delta_time(start_time, end_time)
     print(deltaTime,"[ms]")
-    if memflag:
-        Delta_memory = delta_memory(stop_memory, start_memory)
-        print("Memoria [kB]: ",Delta_memory)
+
     
     llaves = model.mp.valueSet(lista_c)
     for ciudad in model.lt.iterator(llaves):
