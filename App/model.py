@@ -131,7 +131,7 @@ def add_skills(catalog, skills):
     contiene = mp.contains(catalog['mapaHabilidad'], habilidad)
     if contiene == False:
         arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=compareDates)
-        lista_id = lt.newList('Array_List')
+        lista_id = lt.newList('ARRAY_LIST')
         lt.addLast(lista_id, skills['id'])
         om.put(arbol_nivel, skills['level'], lista_id)
         mp.put(catalog['mapaHabilidad'], habilidad, arbol_nivel)
@@ -156,10 +156,12 @@ def add_jobs(catalog, data):
     data['published_at'] = datetime.strptime(fecha, '%Y-%m-%dT%H:%M:%S.%fZ')
     if not om.contains(catalog['arbolFecha'], data['published_at']):
         lista_fecha = lt.newList('ARRAY_LIST')
+        lt.addLast(lista_fecha, data)
         om.put(catalog['arbolFecha'], data['published_at'], lista_fecha)
+        
     else:
         lista_fecha = me.getValue(om.get(catalog['arbolFecha'], data['published_at']))
-    lt.addLast(lista_fecha, data)
+        lt.addLast(lista_fecha, data)
     # Se crea un mapa, cuyas llaves son el pais, y sus valores son un mapa cuyas cuyas llaves son los niveles de experticia y valores lista de datos
     pais = data['country_code']
     experticia_data = data['experience_level']
@@ -169,6 +171,7 @@ def add_jobs(catalog, data):
                                 loadfactor=4,
                                 cmpfunction=sort_criteria
                                 )
+        
         junior = lt.newList('ARRAY_LIST')
         mid = lt.newList('ARRAY_LIST')
         senior = lt.newList('ARRAY_LIST')
@@ -180,8 +183,7 @@ def add_jobs(catalog, data):
         mp.put(catalog['mapaPais'], pais, experticia)
     
     paisMapa = me.getValue(om.get(catalog['mapaPais'], pais))
-    listaExperticia = me.getValue(om.get(paisMapa, experticia_data))
-        
+    listaExperticia = me.getValue(om.get(paisMapa, experticia_data)) 
     lt.addLast(listaExperticia, data)
     #
         
@@ -375,7 +377,7 @@ def sort_criteria_date(date1, date2):
         return -1
 
 
-def sort_criteria(fecha, entry):
+def sort_criteria(id, entry):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
 
     Args:
@@ -393,7 +395,7 @@ def sort_criteria(fecha, entry):
         return 1
     else:
         return -1
-    pass
+    
 def sort(data_structs):
     """
     Función encargada de ordenar la lista con los datos

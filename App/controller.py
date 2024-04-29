@@ -63,16 +63,14 @@ def load_data(control,size_archivo):
     else: 
         arc = "large"
         
-    """
+    
     skills = load_skills(control['model'], arc)
     jobs = load_jobs(control["model"], arc)
     locations = load_locations(control['model'], arc)
     employments = load_employment_type(control['model'], arc)
     return (skills, jobs, locations, employments)
-    """
-    employment = load_employment_type(control['model'], arc)
-    print(employment)
-    pass
+
+    
 
 def load_skills(catalog,arc):
     booksfile = cf.data_dir + str(arc+"-skills.csv")
@@ -105,7 +103,7 @@ def load_employment_type(catalog,arc):
     booksfile = cf.data_dir + str(arc+"-employments_types.csv")
     input_file = csv.DictReader(open(booksfile, encoding="utf-8"),delimiter=";")
     for employment in input_file:
-        model.add_employment_types(catalog, employment)
+        model.add_employment(catalog, employment)
     return model.data_size(catalog['employment-types'])
 
 
