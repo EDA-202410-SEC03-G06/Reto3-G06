@@ -63,6 +63,7 @@ def new_data_structs(tipo):
                'arbolFecha': None,
                'mapaPais': None,
                'mapaCiudad': None,
+               'ciudadSalario': None,
                'arbolTamaño': None,
                'arbolSalary': None,
                'mapaHabilidad': None
@@ -109,7 +110,11 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-
+    catalog['ciudadSalario'] = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
     return catalog
 
 
@@ -249,12 +254,12 @@ def convertirSalario(salario, moneda):
 def add_employment_types(catalog, oferta):
     salario = oferta['salary_from']
     currency = oferta['currency_salary']
-    
+    datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
+    ciudad = datos_oferta['city']
     if salario != '' and salario != ' ':
-        oferta['salary_from'] = convertirSalario(float(salario), currency)
+        oferta['salary_from'] = round(convertirSalario(float(salario), currency),2)
         oferta['currency_salary'] = 'usd'
         skills = me.getValue(mp.get(catalog['skills'], oferta['id']))
-        datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
         datos_oferta['salary_from'] = oferta['salary_from']
         datos_oferta['skills'] = skills['name']
         if not om.contains(catalog['arbolSalary'], oferta['salary_from']):
@@ -263,6 +268,23 @@ def add_employment_types(catalog, oferta):
         else:
             listaSalario = me.getValue(om.get(catalog['arbolSalary'], oferta['salary_from']))
         lt.addLast(listaSalario, datos_oferta)
+        #Ahora se va a agregar un mapa de ofertas por ciudad, llaves ciudades y valores un arbol por salario minimo ofertado
+        if not mp.contains(catalog['ciudadSalario'], ciudad):
+            salaryTree = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
+            mp.put(catalog['ciudadSalario'], ciudad, salaryTree)
+        else:
+            salaryTree = me.getValue(mp.get(catalog['ciudadSalario'], ciudad))
+        
+        if not om.contains(salaryTree, oferta['salary_from']):
+            mapaSalario = mp.newMap(10000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+            om.put(salaryTree, oferta['salary_from'], mapaSalario)
+        else:
+            mapaSalario = me.getValue(om.get(salaryTree, oferta['salary_from']))
+        mp.put(mapaSalario, datos_oferta['id'], datos_oferta)
         
     
     mp.put(catalog['employment-types'], oferta['id'], oferta)
@@ -346,12 +368,12 @@ def req_5(data_structs):
     pass
 
 
-def req_6(data_structs):
+def req_6(catalog, ):
     """
     Función que soluciona el requerimiento 6
     """
     # TODO: Realizar el requerimiento 6
-    pass
+    
 
 
 def req_7(data_structs):
