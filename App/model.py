@@ -57,10 +57,10 @@ def new_data_structs(tipo):
     """
     #TODO: Inicializar las estructuras de datos
     catalog = {'skills':None,
-               'multi-locations': None,
+               'multilocations': None,
                'jobs': None,
                'employment-types':None,
-               'arbolFechas': None,
+               'arbolFecha': None,
                'mapaPais': None,
                'mapaCiudad': None,
                'arbolTamaño': None,
@@ -77,7 +77,7 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria)
 
-    catalog['multi-locations'] = mp.newMap(10000,
+    catalog['multilocations'] = mp.newMap(10000,
                                    maptype='CHAINING',
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
@@ -88,7 +88,7 @@ def new_data_structs(tipo):
                                    cmpfunction=sort_criteria
                                    )
     
-    catalog['arbolFechas'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    catalog['arbolFecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
     
     catalog['mapaPais'] = mp.newMap(10000,
                                    maptype='CHAINING',
@@ -100,9 +100,9 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-    catalog['arbolTamaño'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    catalog['arbolTamaño'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
     
-    catalog['arbolSalary'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    catalog['arbolSalary'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
     
     catalog['mapaHabilidad'] = mp.newMap(10000,
                                    maptype='CHAINING',
@@ -115,13 +115,12 @@ def new_data_structs(tipo):
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_locations(catalog, data):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
-    
-    pass
+    mp.put(catalog['multilocations'],data['id'], data)
 
 def add_skills(catalog, skills):
     """
@@ -132,6 +131,8 @@ def add_skills(catalog, skills):
     if contiene == False:
         arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=compareDates)
         lista_id = lt.newList('ARRAY_LIST')
+        arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
+        lista_id = lt.newList('ARRAY_LIST')
         lt.addLast(lista_id, skills['id'])
         om.put(arbol_nivel, skills['level'], lista_id)
         mp.put(catalog['mapaHabilidad'], habilidad, arbol_nivel)
@@ -140,17 +141,18 @@ def add_skills(catalog, skills):
         arbol_nivel = me.getValue(pareja)
         contiene_nivel = om.contains(arbol_nivel, skills['level'])
         if contiene_nivel == False:
-            lista_id = lt.newList('Array_List')
+            lista_id = lt.newList('ARRAY_LIST')
             lt.addLast(lista_id, skills['id'])
             om.put(arbol_nivel, skills['level'], lista_id)
         else:
-            pareja_nivel = om.get(pareja, skills['level'])
+            pareja_nivel = om.get(arbol_nivel, skills['level'])
             lista_id_nivel = me.getValue(pareja_nivel)
             lt.addLast(lista_id_nivel, skills['id'])
     
     mp.put(catalog['skills'],skills['id'],skills)
 
 def add_jobs(catalog, data):
+    mp.put(catalog['jobs'], data['id'], data)
     # Se crea un arbol, cuyas llaves son la fecha en la que se publicaron y sus valores son una lista de datos. 
     fecha = data['published_at']
     data['published_at'] = datetime.strptime(fecha, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -163,31 +165,84 @@ def add_jobs(catalog, data):
         lista_fecha = me.getValue(om.get(catalog['arbolFecha'], data['published_at']))
         lt.addLast(lista_fecha, data)
     # Se crea un mapa, cuyas llaves son el pais, y sus valores son un mapa cuyas cuyas llaves son los niveles de experticia y valores lista de datos
+    lt.addLast(lista_fecha, data)
+
+    # Se crea un mapa,cuyas llaves son el pais, y sus valores son un diccionario cuyas cuyas llaves son los niveles de experticia y valores lista de datos
     pais = data['country_code']
     experticia_data = data['experience_level']
-    if not om.contains(catalog['mapaPais'], pais):
-        experticia = mp.newMap(11,
-                                maptype='CHAINING',
-                                loadfactor=4,
-                                cmpfunction=sort_criteria
-                                )
-        
-        junior = lt.newList('ARRAY_LIST')
-        mid = lt.newList('ARRAY_LIST')
-        senior = lt.newList('ARRAY_LIST')
-        
-        mp.put(experticia, 'junior', junior)
-        mp.put(experticia, 'mid', mid)
-        mp.put(experticia, 'senior', senior)
-        
+    if not mp.contains(catalog['mapaPais'], pais):
+        experticia = {'junior': None,
+                        'mid': None,
+                        'senior': None,
+                        'indeterminado': None
+                        }
+        experticia['junior'] = lt.newList('ARRAY_LIST')
+        experticia['mid'] = lt.newList('ARRAY_LIST')
+        experticia['senior'] = lt.newList('ARRAY_LIST')
+        experticia['indeterminado'] = lt.newList('ARRAY_LIST')
         mp.put(catalog['mapaPais'], pais, experticia)
     
-    paisMapa = me.getValue(om.get(catalog['mapaPais'], pais))
-    listaExperticia = me.getValue(om.get(paisMapa, experticia_data)) 
-    lt.addLast(listaExperticia, data)
-    #
+    paisLista = me.getValue(om.get(catalog['mapaPais'], pais))
+    lt.addLast(paisLista[experticia_data], data)
+    lt.addLast(paisLista['indeterminado'], data)
+    
+    # Mapa cuyas llaves son ciudades, y adentro se puede buscar en 3 categorias, todos, ubicacion, fechas:
+    ciudad = data['city']
+    work_type = data['workplace_type']
+    if not mp.contains(catalog['mapaCiudad'], ciudad):
+        fecha_ubicacion = {'fecha': None,
+                           'ubicacion': None,
+                           'todos': None
+                           }
+        fecha_ubicacion['fecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
+        fecha_ubicacion['ubicacion'] = {'remote': None,
+                                        'partly_remote': None,
+                                        'office':None
+                                        }
+        fecha_ubicacion['ubicacion']['remote'] = lt.newList('ARRAY_LIST')
+        fecha_ubicacion['ubicacion']['partly_remote'] = lt.newList('ARRAY_LIST')
+        fecha_ubicacion['ubicacion']['office'] = lt.newList('ARRAY_LIST')
         
+        fecha_ubicacion['todos'] = lt.newList()
+        mp.put(catalog['mapaCiudad'], ciudad, fecha_ubicacion)
+    mapa = me.getValue(mp.get(catalog['mapaCiudad'], ciudad))
+    if not om.contains(mapa['fecha'], data['published_at']):
+        lista_fecha_ciudad = lt.newList('ARRAY_LIST')
+        om.put(mapa['fecha'], data['published_at'], lista_fecha_ciudad)
+    else:
+        lista_fecha_ciudad = me.getValue(om.get(mapa['fecha'], data['published_at']))
+    lt.addLast(lista_fecha_ciudad, data)
+    lt.addLast(mapa['ubicacion'][work_type], data)
+    lt.addLast(mapa['todos'], data)
+    
+    #crear un arbol por tamaño de la empresa, si el tamaño es undefined este se categorizara con -1
+    tamaño = data['company_size']
+    empresa = data['company_name']
+    if tamaño == 'Undefined':
+        tamaño = -1
+    else:
+        tamaño = float(tamaño)
         
+    if not om.contains(catalog['arbolTamaño'], tamaño):
+        mapa_companys = mp.newMap(1000,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+        om.put(catalog['arbolTamaño'], tamaño, mapa_companys)
+    else:
+        mapa_companys = me.getValue(om.get(catalog['arbolTamaño'], tamaño))
+    
+    if not mp.contains(mapa_companys, empresa):
+        lista_empresa = lt.newList('ARRAY_LIST')
+        mp.put(mapa_companys, empresa, lista_empresa)
+    else:
+        pareja_empresa = mp.get(mapa_companys, empresa)
+        lista_empresa = me.getValue(pareja_empresa)
+    lt.addLast(lista_empresa, data)
+    
+    
+    
 def convertirSalario(salario, moneda):
     if moneda == 'eur':
         salario = salario *1.07
@@ -197,15 +252,26 @@ def convertirSalario(salario, moneda):
     return salario
 
 
-def add_employment(catalog, oferta):
+def add_employment_types(catalog, oferta):
     salario = oferta['salary_from']
     currency = oferta['currency_salary']
-   
+    
     if salario != '' and salario != ' ':
         oferta['salary_from'] = convertirSalario(float(salario), currency)
         oferta['currency_salary'] = 'usd'
-        om.put(catalog['arbolSalary'], oferta['salary_from'], oferta['id'])
-    mp.put(catalog['multi-locations'], oferta['id'], oferta)
+        skills = me.getValue(mp.get(catalog['skills'], oferta['id']))
+        datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
+        datos_oferta['salary_from'] = oferta['salary_from']
+        datos_oferta['skills'] = skills['name']
+        if not om.contains(catalog['arbolSalary'], oferta['salary_from']):
+            listaSalario = lt.newList('ARRAY_LIST')
+            om.put(catalog['arbolSalary'], oferta['salary_from'], listaSalario)
+        else:
+            listaSalario = me.getValue(om.get(catalog['arbolSalary'], oferta['salary_from']))
+        lt.addLast(listaSalario, datos_oferta)
+        
+    
+    mp.put(catalog['employment-types'], oferta['id'], oferta)
 
 def new_data(id, info):
     """
@@ -231,28 +297,36 @@ def data_size(data_structs):
     Retorna el tamaño de la lista de datos
     """
     #TODO: Crear la función para obtener el tamaño de una lista
-    pass
+    valores = mp.keySet(data_structs)
+    return lt.size(valores)
 
-
-def req_1(data_structs, initialDate, finalDate):
+def req_1(catalog, initialDate, finalDate):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    lst = om.values(data_structs, initialDate, finalDate)
+    lst = om.keys(catalog["arbolFecha"], initialDate, finalDate)
+    print(lt.size(lst))
     totjobs = 0
-    for job in lt.iterator(lst):
-        totjobs +=lt.size(job['jobs'])
+    for date in lt.iterator(lst):
+        totjobs += lt.size(date)
+        
+        
     return totjobs, lst
 
 
-def req_2(data_structs):
+def req_2(catalog, minSalary, maxSalary):
     """
     Función que soluciona el requerimiento 2
     """
     # TODO: Realizar el requerimiento 2
-    pass
-
+    lst = om.values(catalog['arbolSalary'], minSalary, maxSalary)
+    totjobs = 0
+    for salary in lt.iterator(lst):
+        totjobs += lt.size(salary)
+   
+    return totjobs, lst
+    
 
 def req_3(data_structs):
     """
@@ -313,29 +387,6 @@ def compare(data_1, data_2):
 
 # Funciones de ordenamiento
 
-def compareDates(date1, date2):
-    """
-    Compara dos fechas
-    """
-    if (date1 == date2):
-        return 0
-    elif (date1 > date2):
-        return 1
-    else:
-        return -1
-    
-def compareOffenses(offense1, offense2):
-    """
-    Compara dos tipos de crimenes
-    """
-    offense = me.getKey(offense2)
-    if (offense1 == offense):
-        return 0
-    elif (offense1 > offense):
-        return 1
-    else:
-        return -1
-    
 def sort_criteria(id, entry):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
 
@@ -354,7 +405,7 @@ def sort_criteria(id, entry):
         return 1
     else:
         return -1
-    pass
+    
 
 def sort_criteria_date(date1, date2):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
@@ -367,35 +418,24 @@ def sort_criteria_date(date1, date2):
         _type_: _description_
     """
     #TODO: Crear función comparadora para ordenar
-    dateentry = date1['published_at']
-    datecurrent = date2['published_at']    
+    dateentry = date1
+    datecurrent = date2   
     if dateentry == datecurrent:
         return 0
     elif datecurrent > dateentry:
         return 1
     else:
         return -1
-
-
-def sort_criteria(id, entry):
-    """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
-
-    Args:
-        data1 (_type_): _description_
-        data2 (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    #TODO: Crear función comparadora para ordenar
-    identry = me.getKey(entry)
-    if id == identry:
+    
+def sort_criteria_salary(salary1, salary2):
+    
+    if salary1 == salary2:
         return 0
-    elif id > identry:
+    elif salary1 > salary2:
         return 1
     else:
         return -1
-    
+
 def sort(data_structs):
     """
     Función encargada de ordenar la lista con los datos
