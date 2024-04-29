@@ -186,23 +186,20 @@ def print_req_6(control):
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    exp = input('Que nivel de experiencia busca?(junior,mid,senior): ')
     n = int(input('Ingrese la cantidad de ciudades que desea ver: '))
-    fecha= input('Escriba el anio') 
-
-    ofertas = controller.req_6(control,n, exp, fecha)
+    fecha_in, fecha_fin= input('Escriba el anio mas reciente y separado por coma el mas antiguo:') 
+    salario_min,salario_max = input('Escriba: el salario minimo, salario maximo:')
+    ofertas = controller.req_6(control,n, fecha_in, fecha_fin,salario_min,salario_max)
     cantidad_ciudades = ofertas[1]
-    empresas = ofertas[2]
     total = ofertas[0]
-    mayor = ofertas[3]
-    menor = ofertas[4]
-    print('El total de ciudades que cumplen el requisito son:',cantidad_ciudades)
-    print('El total de empresas que cumplen el requisito son:',empresas)
-    print('El total de ofertas que cumplen el requisito son:',total)
-    print('La ciudad con mayor cantidad de ofertas es:',mayor['city'],'con el total de ofertas:',mayor['count'])    
-    print('La ciudad con menor cantidad de ofertas es:',menor['city'],'con el total de ofertas:',menor['count'])    
-   
 
+    print('El total de ciudades que cumplen el requisito son:',cantidad_ciudades)
+    print('El total de ofertas que cumplen el requisito son:',total)
+    print('Las n ciudades con mas ofertas son:',ofertas[2])
+    for oferta in oferta[3]['elements']:
+        for key in oferta.keys():
+            print(key,':',oferta[key])
+   
 
 def print_req_7(control):
     """

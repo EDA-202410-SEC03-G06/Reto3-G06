@@ -249,7 +249,7 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     # TODO: Modificar el requerimiento 6
     start_time = get_time()   
 
-    total, total_ciudades, n_ciudades= model.req_6(catalog['model'],n,fecha_in,fecha_fin,sal_min,sal_max)
+    total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],n,fecha_in,fecha_fin,sal_min,sal_max)
     # calculando la diferencia en tiempo 
 
     
@@ -258,17 +258,8 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     print(deltaTime,"[ms]")
 
     
-    llaves = model.mp.valueSet(lista_c)
-    for ciudad in model.lt.iterator(llaves):
-        llave = model.mp.keySet(ciudad)
 
-        for element in model.lt.iterator(llave):
-            parvalor = model.mp.get(ciudad,element)
-            valor = model.me.getValue(parvalor)
-            print(element,':',valor)
-            pass
-
-    return total_ofertas, cant_ciudades, cant_empresas, mayor, menor
+    return total, total_ciudades, n_ciudades, ofertas_ciudad
 
 
 

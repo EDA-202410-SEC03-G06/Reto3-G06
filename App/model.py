@@ -446,9 +446,10 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
                      'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
                      'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
                      'Salary':oferta_emp['salary_to'],'Skill':oferta_skill['name']}
+            lt.addLast(ofertas_ciudad,datos)
 
 
-    return (lt.size(ofertas),lt.size(city_list),n_ciudades)
+    return (lt.size(ofertas),lt.size(city_list),n_ciudades,ofertas_ciudad)
     
     
         
