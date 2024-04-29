@@ -28,9 +28,11 @@ from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
+from DISClib.ADT import orderedmap as om
 assert cf
 from tabulate import tabulate
 import traceback
+from datetime import datetime
 
 """
 La vista se encarga de la interacción con el usuario
@@ -99,6 +101,23 @@ def print_req_2(control):
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
+    minSalary = float(input('Ingrese el salario minimo: '))
+    maxSalary = float(input('Ingrese el salario maximo: '))
+    total, lst = controller.req_2(control, minSalary, maxSalary)
+    print(f'El total de ofertas en el rango de {minSalary}-{maxSalary} es de: {total}')
+    oferta1 = lt.lastElement(lt.firstElement(lst))
+    print(f'''Los datos de la primera oferta son: 
+Fecha publicación oferta:  {datetime.strftime(oferta1['published_at'], '%Y-%m-%d')}
+Título de la oferta: {oferta1['title']}
+Nombre de la empresa de la oferta: {oferta1['company_name']}
+Nivel de experticia de la oferta: {oferta1['experience_level']}
+País de la empresa de la oferta: {oferta1['country_code']}
+Ciudad de la empresa de la oferta: {oferta1['city']}
+Tamaño de la empresa de la oferta: {oferta1['company_size']}
+Tipo de ubicación de trabajo (remote, partialy, remote, office): {oferta1['workplace_type']}
+Salario mínimo ofertado: {oferta1['salary_from']}
+Habilidades solicitadas: {oferta1['skills']}
+''')
     
 
 
@@ -258,22 +277,15 @@ if __name__ == "__main__":
             print('Ubicaciones cargadas:',data[2])
             print('Tipos de empleo cargados:',data[3])
             print('Trabajos cargados:',data[1])
+            
             print_data(control)
             
         
         elif int(inputs) == 2:
-
             print_req_1(control)
             
-            
-            
         elif int(inputs) == 3:
-
-            tup = print_req_2(control)
-            print('La cantidad de ofertas segun la ciudad y empresa que escogio: ',tup[0])
-            
-      
-            
+            print_req_2(control)     
 
         elif int(inputs) == 4:
             tup = print_req_3(control)

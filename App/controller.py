@@ -26,7 +26,7 @@ import model
 import time
 import csv
 import tracemalloc
-
+from datetime import datetime
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
@@ -70,8 +70,8 @@ def load_data(control,size_archivo):
     employments = load_employment_type(control['model'], arc)
     return (skills, jobs, locations, employments)
     """
-    skills = load_skills(control['model'], arc)
     jobs = load_jobs(control["model"], arc)
+    skills = load_skills(control['model'], arc)
     locations = load_locations(control['model'], arc)
     employments = load_employment_type(control['model'], arc)
     return (skills, jobs, locations, employments)
@@ -135,44 +135,26 @@ def req_1(control, initial_Date, final_Date):
     """
     Retorna el resultado del requerimiento 1
     """
-    totjobs, lista1 = model.req_1(control['model'], initial_Date, final_Date)
+    initialDate = datetime.strptime(initial_Date, '%Y-%m-%d')
+    finalDate = datetime.strptime(final_Date, '%Y-%m-%d')
+    totjobs, lista1 = model.req_1(control['model'], initialDate, finalDate)
     return totjobs, lista1
     
     
     
 
 
-def req_2(control, n , empresa, city, memflag):
+def req_2(catalog, minSalary, maxSalary):
     """
     Retorna el resultado del requerimiento 2
     """
     # TODO: Modificar el requerimiento 2
-    start_time = get_time()
+    minSalary = float(minSalary)
+    maxSalary = float(maxSalary)
+     
+    total, lst = model.req_2(catalog['model'], minSalary, maxSalary)
     
-    if memflag is True:
-        tracemalloc.start()
-        start_memory= get_memory()
-
-    lista = model.req_2(control['model'],n , empresa, city)
-    
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
-    
-    end_time = get_time()
-    deltaTime = delta_time(start_time, end_time)
-    print(deltaTime,"[ms]")
-    if memflag:
-        Delta_memory = delta_memory(stop_memory, start_memory)
-        print("Memoria [kB]:  ", Delta_memory)
-    
-    llaves= model.mp.keySet(lista[1])
-    for oferta in model.lt.iterator(llaves):
-        parejas= model.mp.get(lista[1], oferta)
-        valor= model.me.getValue(parejas)
-        print(llaves, valor)
-    
-    return lista 
+    return total, lst
 
 
 def req_3(control,empresa,fecha_in,fecha_fin):

@@ -88,7 +88,7 @@ def new_data_structs(tipo):
                                    cmpfunction=sort_criteria
                                    )
     
-    catalog['arbolFecha'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    catalog['arbolFecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
     
     catalog['mapaPais'] = mp.newMap(10000,
                                    maptype='CHAINING',
@@ -100,9 +100,9 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-    catalog['arbolTamaño'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    catalog['arbolTamaño'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
     
-    catalog['arbolSalary'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+    catalog['arbolSalary'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
     
     catalog['mapaHabilidad'] = mp.newMap(10000,
                                    maptype='CHAINING',
@@ -129,7 +129,7 @@ def add_skills(catalog, skills):
     habilidad = skills['name']
     contiene = mp.contains(catalog['mapaHabilidad'], habilidad)
     if contiene == False:
-        arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+        arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
         lista_id = lt.newList('ARRAY_LIST')
         lt.addLast(lista_id, skills['id'])
         om.put(arbol_nivel, skills['level'], lista_id)
@@ -160,7 +160,6 @@ def add_jobs(catalog, data):
     else:
         lista_fecha = me.getValue(om.get(catalog['arbolFecha'], data['published_at']))
     lt.addLast(lista_fecha, data)
-    '''
 
     # Se crea un mapa,cuyas llaves son el pais, y sus valores son un diccionario cuyas cuyas llaves son los niveles de experticia y valores lista de datos
     pais = data['country_code']
@@ -189,7 +188,7 @@ def add_jobs(catalog, data):
                            'ubicacion': None,
                            'todos': None
                            }
-        fecha_ubicacion['fecha'] = om.newMap(omaptype='RBT',cmpfunction=compareDates)
+        fecha_ubicacion['fecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
         fecha_ubicacion['ubicacion'] = {'remote': None,
                                         'partly_remote': None,
                                         'office':None
@@ -235,7 +234,7 @@ def add_jobs(catalog, data):
         pareja_empresa = mp.get(mapa_companys, empresa)
         lista_empresa = me.getValue(pareja_empresa)
     lt.addLast(lista_empresa, data)
-    '''
+    
     
     
 def convertirSalario(salario, moneda):
@@ -254,7 +253,18 @@ def add_employment_types(catalog, oferta):
     if salario != '' and salario != ' ':
         oferta['salary_from'] = convertirSalario(float(salario), currency)
         oferta['currency_salary'] = 'usd'
-        om.put(catalog['arbolSalary'], oferta['salary_from'], oferta['id'])
+        skills = me.getValue(mp.get(catalog['skills'], oferta['id']))
+        datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
+        datos_oferta['salary_from'] = oferta['salary_from']
+        datos_oferta['skills'] = skills['name']
+        if not om.contains(catalog['arbolSalary'], oferta['salary_from']):
+            listaSalario = lt.newList('ARRAY_LIST')
+            om.put(catalog['arbolSalary'], oferta['salary_from'], listaSalario)
+        else:
+            listaSalario = me.getValue(om.get(catalog['arbolSalary'], oferta['salary_from']))
+        lt.addLast(listaSalario, datos_oferta)
+        
+    
     mp.put(catalog['employment-types'], oferta['id'], oferta)
 
 def new_data(id, info):
@@ -289,24 +299,28 @@ def req_1(catalog, initialDate, finalDate):
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    initialDate = datetime.strptime(initialDate,'%Y-%m-%d')
-    finalDate= datetime.strptime(finalDate, '%Y-%m-%d')
-    lst = om.values(catalog["arbolFecha"], initialDate, finalDate)
+    lst = om.keys(catalog["arbolFecha"], initialDate, finalDate)
+    print(lt.size(lst))
     totjobs = 0
     for date in lt.iterator(lst):
         totjobs += lt.size(date)
-        print(lt.size(date))
+        
         
     return totjobs, lst
 
 
-def req_2(data_structs):
+def req_2(catalog, minSalary, maxSalary):
     """
     Función que soluciona el requerimiento 2
     """
     # TODO: Realizar el requerimiento 2
-    pass
-
+    lst = om.values(catalog['arbolSalary'], minSalary, maxSalary)
+    totjobs = 0
+    for salary in lt.iterator(lst):
+        totjobs += lt.size(salary)
+   
+    return totjobs, lst
+    
 
 def req_3(data_structs):
     """
@@ -367,29 +381,6 @@ def compare(data_1, data_2):
 
 # Funciones de ordenamiento
 
-def compareDates(date1, date2):
-    """
-    Compara dos fechas
-    """
-    if (date1 == date2):
-        return 0
-    elif (date1 < date2):
-        return 1
-    else:
-        return -1
-    
-def compareOffenses(offense1, offense2):
-    """
-    Compara dos tipos de crimenes
-    """
-    offense = me.getKey(offense2)
-    if (offense1 == offense):
-        return 0
-    elif (offense1 > offense):
-        return 1
-    else:
-        return -1
-    
 def sort_criteria(id, entry):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
 
@@ -408,7 +399,7 @@ def sort_criteria(id, entry):
         return 1
     else:
         return -1
-    pass
+    
 
 def sort_criteria_date(date1, date2):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
@@ -421,15 +412,23 @@ def sort_criteria_date(date1, date2):
         _type_: _description_
     """
     #TODO: Crear función comparadora para ordenar
-    dateentry = date1['published_at']
-    datecurrent = date2['published_at']    
+    dateentry = date1
+    datecurrent = date2   
     if dateentry == datecurrent:
         return 0
     elif datecurrent > dateentry:
         return 1
     else:
         return -1
-
+    
+def sort_criteria_salary(salary1, salary2):
+    
+    if salary1 == salary2:
+        return 0
+    elif salary1 > salary2:
+        return 1
+    else:
+        return -1
 
 def sort(data_structs):
     """
