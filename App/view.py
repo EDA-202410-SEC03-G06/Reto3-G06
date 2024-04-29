@@ -126,10 +126,10 @@ def print_req_3(control):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    empresa = input('Escriba el nombre de la empresa que desea')
-    fecha_in= input('Escriba la fecha inicial (mas antigua):')
-    fecha_fin=input('Escriba la fecha final (mas reciente):')
-    return  controller.req_3(control,empresa,fecha_in,fecha_fin)
+    pais = input('Escriba el nombre del pais')
+    n= input('Escriba el numero de ofertas:')
+    exp=input('Escriba el nivel de exp:')
+    return  controller.req_3(control,n,pais,exp)
     
 
 

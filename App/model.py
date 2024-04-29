@@ -328,12 +328,28 @@ def req_2(catalog, minSalary, maxSalary):
     return totjobs, lst
     
 
-def req_3(data_structs):
+def req_3(data_structs, n, pais, exp):
     """
     Función que soluciona el requerimiento 3
     """
-    # TODO: Realizar el requerimiento 3
-    pass
+    catalog = data_structs['mapaPais']
+    ofertas = lt.newList("ARRAY_LIST")
+    
+    pareja = mp.get(catalog,pais)
+    val_pais = me.getValue(pareja)
+    pareja_exp = mp.get(val_pais,exp)
+    valores = me.getValue(pareja_exp)
+    
+    count = 1
+    merg.sort(valores,compare)
+    for ele in lt.iterator(valores):
+        if count == n:
+            break
+        else:
+            lt.addLast(ofertas,ele)
+    return (lt.size(ofertas),ofertas)
+
+    
 
 
 def req_4(data_structs):
@@ -383,6 +399,12 @@ def compare(data_1, data_2):
     Función encargada de comparar dos datos
     """
     #TODO: Crear función comparadora de la lista
+    if data_1['published_at']>data_2['published_at']:
+        return True
+    elif data_1['published_at']<data_2['published_at']:
+        False
+    else:
+        return data_1['id']>data_2['id']
     pass
 
 # Funciones de ordenamiento

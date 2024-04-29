@@ -170,7 +170,7 @@ def req_2(control, n , empresa, city, memflag):
     return lista 
 
 
-def req_3(control,empresa,fecha_in,fecha_fin):
+def req_3(control,n,pais,exp):
     """
     Retorna el resultado del requerimiento 3
     Número total de ofertas.
@@ -179,36 +179,19 @@ def req_3(control,empresa,fecha_in,fecha_fin):
 • Número total de ofertas con experticia senior
     """
     # TODO: Modificar el requerimiento 3
-    memflag=True
     start_time = get_time()
   
-    if memflag is True:
-        tracemalloc.start()
-        start_memory = get_memory()
 
-    lista, keys = model.req_3(control['model'],empresa,fecha_in,fecha_fin)
-    #lista, keys = model.req_3(control['model'],'Bitfinex','2005-10-10','2023-10-10')
-    
-    # finaliza el proceso para medir memoria
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
-    
+    #size, lista = model.req_3(control['model'],n,pais,exp)
+    size, lista = model.req_3(control['model'],5,'PL','junior')
+
     end_time = get_time()   
-    Delta_memory = delta_memory(stop_memory, start_memory)
-  
+
     deltaTime = delta_time(start_time, end_time)
     print(deltaTime,"[ms]")
-    print("Memoria [kB]: ",Delta_memory)
     
-    
-    size = model.data_size(lista)
-    junior = model.mp.get(keys,'junior') 
-    mid = model.mp.get(keys,'mid')
-    senior= model.mp.get(keys,'senior')
-    lista_1 =model.mp.valueSet(lista)
         
-    return size, junior, mid, senior, lista_1
+    return size, lista
     
 
 
