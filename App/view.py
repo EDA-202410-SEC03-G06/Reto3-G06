@@ -235,7 +235,12 @@ def print_req_7(control):
     else:
         conteo = 'experiencia'
     
-    respuesta = controller.req_7(control, anio, pais, conteo, memflag)
+    totalOfertas, total, valor_min, valor_max, tipoConteo = controller.req_7(control, anio, pais, conteo, memflag)
+    
+    print('El total de ofertas en el año es:', totalOfertas)
+    print('El total de ofertas para generar la grafica es:', total)
+    print('El valor minimo es:', valor_min)
+    print('El valor maximo es:', valor_max)
     
 def print_req_8(control):
     """

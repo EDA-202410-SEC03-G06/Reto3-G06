@@ -195,15 +195,12 @@ def add_jobs(catalog, data):
                            'todos': None
                            }
         fecha_ubicacion['fecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
-        fecha_ubicacion['ubicacion'] = {'remote': None,
-                                        'partly_remote': None,
-                                        'office':None
-                                        }
+        fecha_ubicacion['ubicacion'] = {}
         fecha_ubicacion['ubicacion']['remote'] = lt.newList('ARRAY_LIST')
         fecha_ubicacion['ubicacion']['partly_remote'] = lt.newList('ARRAY_LIST')
         fecha_ubicacion['ubicacion']['office'] = lt.newList('ARRAY_LIST')
         
-        fecha_ubicacion['todos'] = lt.newList()
+        fecha_ubicacion['todos'] = lt.newList('ARRAY_LIST')
         mp.put(catalog['mapaCiudad'], ciudad, fecha_ubicacion)
     mapa = me.getValue(mp.get(catalog['mapaCiudad'], ciudad))
     if not om.contains(mapa['fecha'], data['published_at']):
@@ -250,41 +247,55 @@ def add_jobs(catalog, data):
                         cmpfunction=sort_criteria
                         )
         mp.put(catalog['mapaAño'], anio, paises)
+        mp.put(paises, 'total', 0)
     mapaAño = me.getValue(mp.get(catalog['mapaAño'], anio))
+    parejaTotal = mp.get(mapaAño, 'total')
+    total = me.getValue(parejaTotal)
+    total += 1
+    me.setValue(parejaTotal, total)
     if not mp.contains(mapaAño, pais):
         categorias = {'experiencia': None,
                       'ubicacion': None,
                       'habilidad': None
                       }
-        categorias['habilidad'] = mp.newMap(13,
+        categorias['habilidad'] = mp.newMap(51,
                                    maptype='CHAINING',
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-        experticia = {'junior': None,
-                        'mid': None,
-                        'senior': None,
-                        'indeterminado': None
-                        }
-        experticia['junior'] = lt.newList('ARRAY_LIST')
-        experticia['mid'] = lt.newList('ARRAY_LIST')
-        experticia['senior'] = lt.newList('ARRAY_LIST')
+        
+        experticia = mp.newMap(7,
+                                maptype='PROBING',
+                                loadfactor=0.5,
+                                cmpfunction=sort_criteria
+                                   )
+        junior = lt.newList('ARRAY_LIST')
+        mid = lt.newList('ARRAY_LIST')
+        senior = lt.newList('ARRAY_LIST')
+        mp.put(experticia, 'junior', junior)
+        mp.put(experticia, 'mid', mid)
+        mp.put(experticia, 'senior', senior)
         
         categorias['experiencia'] = experticia
         
-        categorias['ubicacion'] = {'remote': None,
-                                    'partly_remote': None,
-                                    'office':None
-                                    }
-        categorias['ubicacion']['remote'] = lt.newList('ARRAY_LIST')
-        categorias['ubicacion']['partly_remote'] = lt.newList('ARRAY_LIST')
-        categorias['ubicacion']['office'] = lt.newList('ARRAY_LIST')
+        categorias['todas'] = lt.newList('ARRAY_LIST')
         
+        categorias['ubicacion'] = mp.newMap(1000,
+                                            maptype='CHAINING',
+                                            loadfactor=4,
+                                            cmpfunction=sort_criteria
+                                            )
+        remote = lt.newList('ARRAY_LIST')
+        partly_remote = lt.newList('ARRAY_LIST')
+        office = lt.newList('ARRAY_LIST')
+        mp.put(categorias['ubicacion'], 'remote', remote)
+        mp.put(categorias['ubicacion'], 'partly_remote', partly_remote)
+        mp.put(categorias['ubicacion'], 'office', office)
         mp.put(mapaAño, pais, categorias)
     else:
         categorias = me.getValue(mp.get(mapaAño, pais))
-    lt.addLast(categorias['experiencia'][experticia_data], data)
-    lt.addLast(categorias['ubicacion'][work_type], data)
+    lt.addLast(me.getValue(mp.get(categorias['experiencia'], experticia_data)), data)
+    lt.addLast(me.getValue(mp.get(categorias['ubicacion'], work_type)), data)
     
     skill = me.getValue(mp.get(catalog['skills'], data['id']))
     if not mp.contains(categorias['habilidad'], skill['name']):
@@ -292,8 +303,7 @@ def add_jobs(catalog, data):
         mp.put(categorias['habilidad'], skill['name'], lista_skill)
     else:
         lista_skill = me.getValue(mp.get(categorias['habilidad'], skill['name']))
-    lt.addLast(lista_skill, data)
-        
+    lt.addLast(lista_skill, data)  
     
 def convertirSalario(salario, moneda):
     if moneda == 'eur':
@@ -496,9 +506,40 @@ def req_7(catalog, año, pais, conteo):
     Función que soluciona el requerimiento 7
     """
     # TODO: Realizar el requerimiento 7
+    años = catalog['mapaAño']
+    paisesAño= me.getValue(mp.get(años, año))
+    totalOfertas = me.getValue(mp.get(paisesAño,'total'))
+    paisConteos =me.getValue(mp.get(paisesAño, pais))
+    tipoConteo = paisConteos[conteo]
     
-
-
+    ejes = mp.keySet(tipoConteo)
+    valores = []
+    llaves = []
+    valor_min = 30040602
+    valor_max = 0
+    total = 0
+    for key in lt.iterator(ejes):
+        print(key)
+        llaves.append(key)
+        valor = lt.size(me.getValue(mp.get(tipoConteo, key)))
+        print(valor)
+        valores.append(valor)
+        if valor > valor_max:
+            valor_max = valor
+        if valor < valor_min:
+            valor_min = valor
+        total += valor
+    plt.bar(llaves, valores, color='blue')
+    if conteo == 'experiencia':
+        plt.xlabel('Niveles de experiencia')
+    else:
+        plt.xlabel(conteo+'es')
+    
+    plt.ylabel('Valores')
+    plt.title('Grafica de barras para '+ conteo+ ' en el año '+ str(año))
+    plt.show()
+    
+    return totalOfertas, total, valor_min, valor_max, tipoConteo
 def req_8(data_structs):
     """
     Función que soluciona el requerimiento 8
