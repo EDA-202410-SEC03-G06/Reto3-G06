@@ -243,6 +243,7 @@ def print_req_7(control):
     print('El valor minimo es:', valor_min)
     print('El valor maximo es:', valor_max)
     
+    
 def print_req_8(control):
     """
         Función que imprime la solución del Requerimiento 8 en consola
