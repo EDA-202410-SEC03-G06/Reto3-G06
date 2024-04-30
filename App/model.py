@@ -26,6 +26,7 @@
 
 
 import config as cf
+import matplotlib.pyplot as plt
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
@@ -110,7 +111,7 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-    catalog['mapaAño'] = mp.newMap(11,
+    catalog['mapaAño'] = mp.newMap(100,
                                    maptype='CHAINING',
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
@@ -243,10 +244,23 @@ def add_jobs(catalog, data):
     #mapa por años, que va a dividirse dentro en nivel de experiencia, habilidades, o ubicación.
     anio = int(datetime.strftime(data['published_at'], '%Y'))
     if not mp.contains(catalog['mapaAño'], anio):
+        paises = mp.newMap(100,
+                        maptype='CHAINING',
+                        loadfactor=4,
+                        cmpfunction=sort_criteria
+                        )
+        mp.put(catalog['mapaAño'], anio, paises)
+    mapaAño = me.getValue(mp.get(catalog['mapaAño'], anio))
+    if not mp.contains(mapaAño, pais):
         categorias = {'experiencia': None,
-                      'Ubicacion': None,
-                      'Habilidad': None
+                      'ubicacion': None,
+                      'habilidad': None
                       }
+        categorias['habilidad'] = mp.newMap(13,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
         experticia = {'junior': None,
                         'mid': None,
                         'senior': None,
@@ -266,23 +280,18 @@ def add_jobs(catalog, data):
         categorias['ubicacion']['partly_remote'] = lt.newList('ARRAY_LIST')
         categorias['ubicacion']['office'] = lt.newList('ARRAY_LIST')
         
-        categorias['habilidad'] = mp.newMap(1000,
-                                   maptype='CHAINING',
-                                   loadfactor=4,
-                                   cmpfunction=sort_criteria
-                                   )
-        mp.put(catalog['mapaAño'], anio, categorias)
-    
-    dictAnio =me.getValue(mp.get(catalog['mapaAño'], anio))
-    lt.addLast(dictAnio['experiencia'][experticia_data], data)
-    lt.addLast(dictAnio['ubicacion'][work_type], data)
-    
-    skill = mp.get(catalog['skills'], data['id'])
-    if not mp.contains(dictAnio['habilidad'], skill):
-        lista_skill = lt.newList('ARRAY_LIST')
-        mp.put(dictAnio['habilidad'], skill, lista_skill)
+        mp.put(mapaAño, pais, categorias)
     else:
-        lista_skill = me.getValue(mp.get(dictAnio['habilidad'], skill))
+        categorias = me.getValue(mp.get(mapaAño, pais))
+    lt.addLast(categorias['experiencia'][experticia_data], data)
+    lt.addLast(categorias['ubicacion'][work_type], data)
+    
+    skill = me.getValue(mp.get(catalog['skills'], data['id']))
+    if not mp.contains(categorias['habilidad'], skill['name']):
+        lista_skill = lt.newList('ARRAY_LIST')
+        mp.put(categorias['habilidad'], skill['name'], lista_skill)
+    else:
+        lista_skill = me.getValue(mp.get(categorias['habilidad'], skill['name']))
     lt.addLast(lista_skill, data)
         
     
@@ -347,7 +356,7 @@ def req_1(catalog, initialDate, finalDate):
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    lst = om.keys(catalog["arbolFecha"], initialDate, finalDate)
+    lst = om.values(catalog["arbolFecha"], initialDate, finalDate)
     print(lt.size(lst))
     totjobs = 0
     for date in lt.iterator(lst):
@@ -482,12 +491,12 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     
 
 
-def req_7(data_structs):
+def req_7(catalog, año, pais, conteo):
     """
     Función que soluciona el requerimiento 7
     """
     # TODO: Realizar el requerimiento 7
-    pass
+    
 
 
 def req_8(data_structs):

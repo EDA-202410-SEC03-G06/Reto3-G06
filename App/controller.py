@@ -63,12 +63,17 @@ def load_data(control,size_archivo):
     else: 
         arc = "large"
         
-    
+    start_time = get_time()
     
     skills = load_skills(control['model'], arc)
     jobs = load_jobs(control["model"], arc)
     locations = load_locations(control['model'], arc)
     employments = load_employment_type(control['model'], arc)
+    
+    end_time = get_time()   
+    deltaTime = delta_time(start_time, end_time)
+    print(deltaTime,"[ms]")
+
     return (skills, jobs, locations, employments)
 
 def load_skills(catalog,arc):
@@ -130,7 +135,9 @@ def req_1(control, initial_Date, final_Date):
     """
     Retorna el resultado del requerimiento 1
     """
-    totjobs, lista1 = model.req_1(control, initial_Date, final_Date)
+    initial_Date = model.datetime.strptime(initial_Date, '%Y-%m-%d')
+    final_Date = model.datetime.strptime(final_Date, '%Y-%m-%d')
+    totjobs, lista1 = model.req_1(control['model'], initial_Date, final_Date)
     return totjobs, lista1
     
     
@@ -273,7 +280,7 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
 
 
 
-def req_7(control, n, año, mes, memflag):
+def req_7(control, año, pais, conteo, memflag):
     """
     Retorna el resultado del requerimiento 7
     """
@@ -282,7 +289,7 @@ def req_7(control, n, año, mes, memflag):
     if memflag is True:
         tracemalloc.start()
         start_memory = get_memory()
-    ofertas = model.req_7(control['model'], n, año, mes)
+    ofertas = model.req_7(control['model'], año, pais, conteo)
     if memflag is True:
         stop_memory = get_memory()
         tracemalloc.stop()

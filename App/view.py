@@ -214,30 +214,24 @@ def print_req_7(control):
         memflag = True
     else:
         memflag = False
-    n= int(input("Ingrese la cantidad de paises para la consulta: "))
-    año = input("Ingrese el año de consulta (ej. 2022): ")
-    mes = input("Ingrese el mes de consulta (ej. 03): ")
-    total_ofertas, numero_ciudades, (pais_mayor, cuenta_pais_mayor), (ciudad_mayor, cuenta_ciudad_mayor), senior, mid, junior = controller.req_7(control, n, año, mes, memflag)
+    anio = int(input('Ingrese el año a consultar: '))
+    pais = input('Ingrese el codigo de pais a consultar: ')
+    print('''
+          1. Habilidad
+          2. Ubicacion de trabajo
+          3. Nivel de experticia
+          ''')
+    conteo_sel = int(input('Ingrese una de las anteriores propiedades de conteo: '))
     
+    if conteo_sel == 1:
+        conteo = 'habilidad'
+    elif conteo_sel == 2:
+        conteo = 'ubicacion'
+    else:
+        conteo = 'experiencia'
     
-    print(f"El total de ofertas de empleo es {total_ofertas}")
-    print(f"Número de ciudades donde se ofertó en los países resultantes de la consulta es {numero_ciudades}")
-    print(f"{pais_mayor} es el pais con más ofertas y tiene {cuenta_pais_mayor}")
-    print(f"{ciudad_mayor} es la ciudad con más ofertas y tiene {cuenta_ciudad_mayor}")
-
+    respuesta = controller.req_7(control, anio, pais, conteo, memflag)
     
-    for level, data in [('senior', senior), ('mid', mid), ('junior', junior)]:
-        print(f"Para el nivel de experiencia {level}:")
-        print(f"""
-        La cantidad de habilidades diferentes son: {data[0]}
-        La habilidad más solicitada es {data[1]['skill']} con {data[1]['count']} ofertas
-        La habilidad menos solicitada es {data[2]['skill']} con {data[2]['count']} ofertas
-        El nivel mínimo promedio es {data[3]}
-        La cantidad de empresas que ofertaron es {data[4]}
-        La empresa con más ofertas es {data[5]['empresa']} con {data[5]['count']} ofertas
-        La empresa con menos ofertas es {data[6]['empresa']} con {data[6]['count']} ofertas
-        """)
-
 def print_req_8(control):
     """
         Función que imprime la solución del Requerimiento 8 en consola
