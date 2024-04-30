@@ -192,8 +192,8 @@ def print_req_6(control):
     """
     # TODO: Imprimir el resultado del requerimiento 6
     n = int(input('Ingrese la cantidad de ciudades que desea ver: '))
-    fecha_in = input('Escriba el anio mas reciente:') 
-    fecha_fin = input('Escriba el anio mas antiguo :') 
+    fecha_in = input('Escriba el anio mas antigua:') 
+    fecha_fin = input('Escriba el anio mas reciente :') 
 
     salario_min = input('Escriba: el salario minimo:')
     salario_max = input('Escriba: el salario maximo:')
@@ -295,14 +295,8 @@ if __name__ == "__main__":
         elif int(inputs) == 4:
             tup = print_req_3(control)
             print('La cantidad de ofertas segun los requisitos es',tup[0])
-            print(tup[1])
-            """
-            prnt = tup[1]
-            for i in range(0,tup[1]):
-                info = prnt['info']
-                print(info)
-                prnt = prnt['next']
-            """
+            print(tup[1]['elements'])
+            
             
         elif int(inputs) == 5:
             print_req_4(control)

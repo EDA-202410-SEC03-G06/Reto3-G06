@@ -42,6 +42,8 @@ from DISClib.Algorithms.Sorting import mergesort as merg
 from datetime import datetime
 from DISClib.Algorithms.Sorting import quicksort as quk
 assert cf
+import folium
+
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
@@ -458,10 +460,11 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     ofertas_ciudad = lt.newList()
     
     #filtrar los datos
-    lst = om.keys(catalog["arbolFecha"], fecha_fin, fecha_in)
+    lst = om.keys(catalog["arbolFecha"], fecha_in, fecha_fin)
     lst_salario = om.values(catalog['arbolSalary'],sal_min,sal_max)
-    for oferta in lt.iterator(lst_salario):
-        mp.put(salarios,oferta['id'],oferta)
+    for value in lt.iterator(lst_salario):
+        for oferta in value:
+            mp.put(salarios,oferta['id'],oferta)
     
     for lista in lt.iterator(lst):
         for oferta in lt.iterator(lista):
