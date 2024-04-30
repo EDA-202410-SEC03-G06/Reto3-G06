@@ -540,10 +540,10 @@ def req_7(catalog, año, pais, conteo):
     valor_max = 0
     total = 0
     for key in lt.iterator(ejes):
-        print(key)
+        
         llaves.append(key)
         valor = lt.size(me.getValue(mp.get(tipoConteo, key)))
-        print(valor)
+        
         valores.append(valor)
         if valor > valor_max:
             valor_max = valor
