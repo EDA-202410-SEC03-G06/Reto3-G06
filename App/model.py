@@ -323,16 +323,19 @@ def add_employment_types(catalog, oferta):
     if salario != '' and salario != ' ':
         oferta['salary_from'] = round(convertirSalario(float(salario), currency),2)
         oferta['currency_salary'] = 'usd'
-        skills = me.getValue(mp.get(catalog['skills'], oferta['id']))
-        datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
-        datos_oferta['salary_from'] = oferta['salary_from']
-        datos_oferta['skills'] = skills['name']
-        if not om.contains(catalog['arbolSalary'], oferta['salary_from']):
-            listaSalario = lt.newList('ARRAY_LIST')
-            om.put(catalog['arbolSalary'], oferta['salary_from'], listaSalario)
-        else:
-            listaSalario = me.getValue(om.get(catalog['arbolSalary'], oferta['salary_from']))
-        lt.addLast(listaSalario, datos_oferta)
+    else:
+        oferta['salary_from'] = -1
+        oferta['currency_salary'] = "N/A"
+    skills = me.getValue(mp.get(catalog['skills'], oferta['id']))
+    datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
+    datos_oferta['salary_from'] = oferta['salary_from']
+    datos_oferta['skills'] = skills['name']
+    if not om.contains(catalog['arbolSalary'], oferta['salary_from']):
+        listaSalario = lt.newList('ARRAY_LIST')
+        om.put(catalog['arbolSalary'], oferta['salary_from'], listaSalario)
+    else:
+        listaSalario = me.getValue(om.get(catalog['arbolSalary'], oferta['salary_from']))
+    lt.addLast(listaSalario, datos_oferta)
     
     mp.put(catalog['employment-types'], oferta['id'], oferta)
 
