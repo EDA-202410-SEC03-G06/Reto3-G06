@@ -101,9 +101,14 @@ def print_req_2(control):
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
+    mem = int(input('Quiere observar el uso de memoria?\n 1: Si\n 2: No'))
+    if mem == 1:
+        memflag = True
+    else:
+        memflag = False
     minSalary = float(input('Ingrese el salario minimo: '))
     maxSalary = float(input('Ingrese el salario maximo: '))
-    total, lst = controller.req_2(control, minSalary, maxSalary)
+    total, lst = controller.req_2(control, minSalary, maxSalary, memflag)
     print(f'El total de ofertas en el rango de {minSalary}-{maxSalary} es de: {total}')
     oferta1 = lt.lastElement(lt.firstElement(lst))
     print(f'''Los datos de la primera oferta son: 

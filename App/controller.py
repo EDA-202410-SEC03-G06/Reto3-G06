@@ -144,7 +144,7 @@ def req_1(control, initial_Date, final_Date):
     
 
 
-def req_2(control, n , empresa, city, memflag):
+def req_2(control,minSalary, maxSalary, memflag):
     """
     Retorna el resultado del requerimiento 2
     """
@@ -155,7 +155,7 @@ def req_2(control, n , empresa, city, memflag):
         tracemalloc.start()
         start_memory= get_memory()
 
-    lista = model.req_2(control['model'],n , empresa, city)
+    lista = model.req_2(control['model'],minSalary, maxSalary)
     
     if memflag is True:
         stop_memory = get_memory()
@@ -168,12 +168,7 @@ def req_2(control, n , empresa, city, memflag):
         Delta_memory = delta_memory(stop_memory, start_memory)
         print("Memoria [kB]:  ", Delta_memory)
     
-    llaves= model.mp.keySet(lista[1])
-    for oferta in model.lt.iterator(llaves):
-        parejas= model.mp.get(lista[1], oferta)
-        valor= model.me.getValue(parejas)
-        print(llaves, valor)
-    
+   
     return lista 
 
 
