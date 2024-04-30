@@ -26,6 +26,7 @@
 
 
 import config as cf
+import matplotlib.pyplot as plt
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
@@ -63,7 +64,7 @@ def new_data_structs(tipo):
                'arbolFecha': None,
                'mapaPais': None,
                'mapaCiudad': None,
-               'ciudadSalario': None,
+               'mapaAño': None,
                'arbolTamaño': None,
                'arbolSalary': None,
                'mapaHabilidad': None
@@ -110,7 +111,7 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-    catalog['ciudadSalario'] = mp.newMap(10000,
+    catalog['mapaAño'] = mp.newMap(100,
                                    maptype='CHAINING',
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
@@ -194,15 +195,12 @@ def add_jobs(catalog, data):
                            'todos': None
                            }
         fecha_ubicacion['fecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
-        fecha_ubicacion['ubicacion'] = {'remote': None,
-                                        'partly_remote': None,
-                                        'office':None
-                                        }
+        fecha_ubicacion['ubicacion'] = {}
         fecha_ubicacion['ubicacion']['remote'] = lt.newList('ARRAY_LIST')
         fecha_ubicacion['ubicacion']['partly_remote'] = lt.newList('ARRAY_LIST')
         fecha_ubicacion['ubicacion']['office'] = lt.newList('ARRAY_LIST')
         
-        fecha_ubicacion['todos'] = lt.newList()
+        fecha_ubicacion['todos'] = lt.newList('ARRAY_LIST')
         mp.put(catalog['mapaCiudad'], ciudad, fecha_ubicacion)
     mapa = me.getValue(mp.get(catalog['mapaCiudad'], ciudad))
     if not om.contains(mapa['fecha'], data['published_at']):
@@ -240,7 +238,72 @@ def add_jobs(catalog, data):
         lista_empresa = me.getValue(pareja_empresa)
     lt.addLast(lista_empresa, data)
     
+    #mapa por años, que va a dividirse dentro en nivel de experiencia, habilidades, o ubicación.
+    anio = int(datetime.strftime(data['published_at'], '%Y'))
+    if not mp.contains(catalog['mapaAño'], anio):
+        paises = mp.newMap(100,
+                        maptype='CHAINING',
+                        loadfactor=4,
+                        cmpfunction=sort_criteria
+                        )
+        mp.put(catalog['mapaAño'], anio, paises)
+        mp.put(paises, 'total', 0)
+    mapaAño = me.getValue(mp.get(catalog['mapaAño'], anio))
+    parejaTotal = mp.get(mapaAño, 'total')
+    total = me.getValue(parejaTotal)
+    total += 1
+    me.setValue(parejaTotal, total)
+    if not mp.contains(mapaAño, pais):
+        categorias = {'experiencia': None,
+                      'ubicacion': None,
+                      'habilidad': None
+                      }
+        categorias['habilidad'] = mp.newMap(51,
+                                   maptype='CHAINING',
+                                   loadfactor=4,
+                                   cmpfunction=sort_criteria
+                                   )
+        
+        experticia = mp.newMap(7,
+                                maptype='PROBING',
+                                loadfactor=0.5,
+                                cmpfunction=sort_criteria
+                                   )
+        junior = lt.newList('ARRAY_LIST')
+        mid = lt.newList('ARRAY_LIST')
+        senior = lt.newList('ARRAY_LIST')
+        mp.put(experticia, 'junior', junior)
+        mp.put(experticia, 'mid', mid)
+        mp.put(experticia, 'senior', senior)
+        
+        categorias['experiencia'] = experticia
+        
+        categorias['todas'] = lt.newList('ARRAY_LIST')
+        
+        categorias['ubicacion'] = mp.newMap(1000,
+                                            maptype='CHAINING',
+                                            loadfactor=4,
+                                            cmpfunction=sort_criteria
+                                            )
+        remote = lt.newList('ARRAY_LIST')
+        partly_remote = lt.newList('ARRAY_LIST')
+        office = lt.newList('ARRAY_LIST')
+        mp.put(categorias['ubicacion'], 'remote', remote)
+        mp.put(categorias['ubicacion'], 'partly_remote', partly_remote)
+        mp.put(categorias['ubicacion'], 'office', office)
+        mp.put(mapaAño, pais, categorias)
+    else:
+        categorias = me.getValue(mp.get(mapaAño, pais))
+    lt.addLast(me.getValue(mp.get(categorias['experiencia'], experticia_data)), data)
+    lt.addLast(me.getValue(mp.get(categorias['ubicacion'], work_type)), data)
     
+    skill = me.getValue(mp.get(catalog['skills'], data['id']))
+    if not mp.contains(categorias['habilidad'], skill['name']):
+        lista_skill = lt.newList('ARRAY_LIST')
+        mp.put(categorias['habilidad'], skill['name'], lista_skill)
+    else:
+        lista_skill = me.getValue(mp.get(categorias['habilidad'], skill['name']))
+    lt.addLast(lista_skill, data)  
     
 def convertirSalario(salario, moneda):
     if moneda == 'eur':
@@ -254,12 +317,12 @@ def convertirSalario(salario, moneda):
 def add_employment_types(catalog, oferta):
     salario = oferta['salary_from']
     currency = oferta['currency_salary']
-    datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
-    ciudad = datos_oferta['city']
+    
     if salario != '' and salario != ' ':
         oferta['salary_from'] = round(convertirSalario(float(salario), currency),2)
         oferta['currency_salary'] = 'usd'
         skills = me.getValue(mp.get(catalog['skills'], oferta['id']))
+        datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
         datos_oferta['salary_from'] = oferta['salary_from']
         datos_oferta['skills'] = skills['name']
         if not om.contains(catalog['arbolSalary'], oferta['salary_from']):
@@ -268,24 +331,6 @@ def add_employment_types(catalog, oferta):
         else:
             listaSalario = me.getValue(om.get(catalog['arbolSalary'], oferta['salary_from']))
         lt.addLast(listaSalario, datos_oferta)
-        #Ahora se va a agregar un mapa de ofertas por ciudad, llaves ciudades y valores un arbol por salario minimo ofertado
-        if not mp.contains(catalog['ciudadSalario'], ciudad):
-            salaryTree = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
-            mp.put(catalog['ciudadSalario'], ciudad, salaryTree)
-        else:
-            salaryTree = me.getValue(mp.get(catalog['ciudadSalario'], ciudad))
-        
-        if not om.contains(salaryTree, oferta['salary_from']):
-            mapaSalario = mp.newMap(10000,
-                                   maptype='CHAINING',
-                                   loadfactor=4,
-                                   cmpfunction=sort_criteria
-                                   )
-            om.put(salaryTree, oferta['salary_from'], mapaSalario)
-        else:
-            mapaSalario = me.getValue(om.get(salaryTree, oferta['salary_from']))
-        mp.put(mapaSalario, datos_oferta['id'], datos_oferta)
-        
     
     mp.put(catalog['employment-types'], oferta['id'], oferta)
 
@@ -321,7 +366,7 @@ def req_1(catalog, initialDate, finalDate):
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    lst = om.keys(catalog["arbolFecha"], initialDate, finalDate)
+    lst = om.values(catalog["arbolFecha"], initialDate, finalDate)
     print(lt.size(lst))
     totjobs = 0
     for date in lt.iterator(lst):
@@ -474,14 +519,45 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     
 
 
-def req_7(data_structs):
+def req_7(catalog, año, pais, conteo):
     """
     Función que soluciona el requerimiento 7
     """
     # TODO: Realizar el requerimiento 7
-    pass
-
-
+    años = catalog['mapaAño']
+    paisesAño= me.getValue(mp.get(años, año))
+    totalOfertas = me.getValue(mp.get(paisesAño,'total'))
+    paisConteos =me.getValue(mp.get(paisesAño, pais))
+    tipoConteo = paisConteos[conteo]
+    
+    ejes = mp.keySet(tipoConteo)
+    valores = []
+    llaves = []
+    valor_min = 30040602
+    valor_max = 0
+    total = 0
+    for key in lt.iterator(ejes):
+        print(key)
+        llaves.append(key)
+        valor = lt.size(me.getValue(mp.get(tipoConteo, key)))
+        print(valor)
+        valores.append(valor)
+        if valor > valor_max:
+            valor_max = valor
+        if valor < valor_min:
+            valor_min = valor
+        total += valor
+    plt.bar(llaves, valores, color='blue')
+    if conteo == 'experiencia':
+        plt.xlabel('Niveles de experiencia')
+    else:
+        plt.xlabel(conteo+'es')
+    
+    plt.ylabel('Valores')
+    plt.title('Grafica de barras para '+ conteo+ ' en el año '+ str(año))
+    plt.show()
+    
+    return totalOfertas, total, valor_min, valor_max, tipoConteo
 def req_8(data_structs):
     """
     Función que soluciona el requerimiento 8
