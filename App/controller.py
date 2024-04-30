@@ -249,10 +249,11 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     # TODO: Modificar el requerimiento 6
     start_time = get_time()   
 
-    total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],n,fecha_in,fecha_fin,sal_min,sal_max)
+    total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],10,'2023-10-10','2020-10-10',1000,999999)
     # calculando la diferencia en tiempo 
+    #total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],n,fecha_in,fecha_fin,sal_min,sal_max)
 
-    
+     
     end_time = get_time()   
     deltaTime = delta_time(start_time, end_time)
     print(deltaTime,"[ms]")

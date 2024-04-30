@@ -187,9 +187,13 @@ def print_req_6(control):
     """
     # TODO: Imprimir el resultado del requerimiento 6
     n = int(input('Ingrese la cantidad de ciudades que desea ver: '))
-    fecha_in, fecha_fin= input('Escriba el anio mas reciente y separado por coma el mas antiguo:') 
-    salario_min,salario_max = input('Escriba: el salario minimo, salario maximo:')
-    ofertas = controller.req_6(control,n, fecha_in, fecha_fin,salario_min,salario_max)
+    fecha_in = input('Escriba el anio mas reciente:') 
+    fecha_fin = input('Escriba el anio mas antiguo :') 
+
+    salario_min = input('Escriba: el salario minimo:')
+    salario_max = input('Escriba: el salario maximo:')
+
+    ofertas = controller.req_6(control,n, fecha_in, fecha_fin,int(salario_min),int(salario_max))
     cantidad_ciudades = ofertas[1]
     total = ofertas[0]
 

@@ -358,21 +358,38 @@ def req_3(data_structs, n, pais, exp):
     count = 1
     merg.sort(valores,compare)
     for ele in lt.iterator(valores):
-        if count == n:
+        if count >n:
             break
         else:
             lt.addLast(ofertas,ele)
+            count+=1
+        
     return (lt.size(ofertas),ofertas)
 
     
 
 
-def req_4(data_structs):
+def req_4(data_structs,n,ciudad,workplace):
     """
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
-    pass
+    catalog = data_structs['mapaCiudad']
+    ofertas = lt.newList("ARRAY_LIST")
+    
+    pareja = mp.get(catalog,ciudad)
+    val_pais = me.getValue(pareja)
+    valores = val_pais[workplace]
+    
+    count = 1
+    merg.sort(valores,compare)
+    for ele in lt.iterator(valores):
+        if count > n:
+            break
+        else:
+            lt.addLast(ofertas,ele)
+    return (lt.size(ofertas),ofertas)
+    
 
 
 def req_5(data_structs):
@@ -396,7 +413,7 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     ofertas_ciudad = lt.newList()
     
     #filtrar los datos
-    lst = om.keys(catalog["arbolFecha"], fecha_in, fecha_fin)
+    lst = om.keys(catalog["arbolFecha"], fecha_fin, fecha_in)
     lst_salario = om.values(catalog['arbolSalary'],sal_min,sal_max)
     for oferta in lt.iterator(lst_salario):
         mp.put(salarios,oferta['id'],oferta)
