@@ -397,11 +397,13 @@ def req_3(data_structs, n, pais, exp):
     """
     catalog = data_structs['mapaPais']
     ofertas = lt.newList("ARRAY_LIST")
+    ofertas_filtro = lt.newList('ARRAY_LIST')
+    emptype = data_structs['employment-types']
+    skills = data_structs['skills']
     
     pareja = mp.get(catalog,pais)
     val_pais = me.getValue(pareja)
     valores = val_pais[exp]
-    
     count = 1
     merg.sort(valores,compare)
     for ele in lt.iterator(valores):
@@ -410,8 +412,18 @@ def req_3(data_structs, n, pais, exp):
         else:
             lt.addLast(ofertas,ele)
             count+=1
-        
-    return (lt.size(ofertas),ofertas)
+    
+    for oferta in lt.iterator(ofertas):
+        pareja_emp = mp.get(emptype,oferta['id'])
+        oferta_emp = me.getValue(pareja_emp)
+        pareja_skill = mp.get(skills,oferta['id'])
+        oferta_skill = me.getValue(pareja_skill)
+        datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
+                 'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
+                 'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
+                 'Salary':oferta_emp['salary_to'],'Skill':oferta_skill['name']}
+        lt.addLast(ofertas_filtro,datos)
+    return (lt.size(valores),ofertas_filtro)
 
     
 
@@ -423,6 +435,9 @@ def req_4(data_structs,n,ciudad,workplace):
     # TODO: Realizar el requerimiento 4
     catalog = data_structs['mapaCiudad']
     ofertas = lt.newList("ARRAY_LIST")
+    ofertas_filtro = lt.newList('ARRAY_LIST')
+    emptype = data_structs['employment-types']
+    skills = data_structs['skills']    
     
     pareja = mp.get(catalog,ciudad)
     val_pais = me.getValue(pareja)
@@ -435,7 +450,18 @@ def req_4(data_structs,n,ciudad,workplace):
             break
         else:
             lt.addLast(ofertas,ele)
-    return (lt.size(ofertas),ofertas)
+            
+    for oferta in lt.iterator(ofertas):
+        pareja_emp = mp.get(emptype,oferta['id'])
+        oferta_emp = me.getValue(pareja_emp)
+        pareja_skill = mp.get(skills,oferta['id'])
+        oferta_skill = me.getValue(pareja_skill)
+        datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
+                 'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
+                 'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
+                 'Salary':oferta_emp['salary_to'],'Skill':oferta_skill['name']}
+        lt.addLast(ofertas_filtro,datos)
+    return (lt.size(valores),ofertas_filtro)
     
 
 

@@ -198,7 +198,7 @@ def print_req_6(control):
     salario_min = input('Escriba: el salario minimo:')
     salario_max = input('Escriba: el salario maximo:')
 
-    ofertas = controller.req_6(control,n, fecha_in, fecha_fin,int(salario_min),int(salario_max))
+    ofertas = controller.req_6(control,n, fecha_in, fecha_fin,float(salario_min),float(salario_max))
     cantidad_ciudades = ofertas[1]
     total = ofertas[0]
 
@@ -296,12 +296,20 @@ if __name__ == "__main__":
         elif int(inputs) == 4:
             tup = print_req_3(control)
             print('La cantidad de ofertas segun los requisitos es',tup[0])
-            print(tup[1]['elements'])
-            
+            print('Los datos de las N ofertas son:')
+            for elem in (tup[1]['elements']):
+                for dato in elem.keys():
+                    print(dato,':',elem[dato],',',end="")
+                print('\n')
             
         elif int(inputs) == 5:
-            print_req_4(control)
-
+            tup = print_req_4(control)
+            print('La cantidad de ofertas segun los requisitos es',tup[0])
+            print('Los datos de las N ofertas son:')
+            for elem in (tup[1]['elements']):
+                for dato in elem.keys():
+                    print(dato,':',elem[dato],',',end="")
+                print('\n')
         elif int(inputs) == 6:
             print_req_5(control)
 

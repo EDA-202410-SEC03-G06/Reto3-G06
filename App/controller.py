@@ -197,25 +197,23 @@ def req_3(control,n,pais,exp):
     
 
 
-def req_4(control, country, f_inicio, f_fin, memflag):
+def req_4(control, n, city, workplace):
     """
     Retorna el resultado del requerimiento 4
     """
     # TODO: Modificar el requerimiento 4
     start_time = get_time()
-    if memflag is True:
-        tracemalloc.start()
-        start_memory = get_memory()
-    ofertas = model.req_4(control['model'], country, f_inicio, f_fin)
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
-        Delta_memory = delta_memory(stop_memory, start_memory)
-        print("Memoria [kB]: ",Delta_memory)
-    end_time = get_time()
-    deltaTime =delta_time(start_time,end_time)
-    print(deltaTime, "[ms]")
-    return ofertas
+  
+    #size, lista = model.req_3(control['model'],n,city,workplace)
+    size, lista = model.req_3(control['model'],5,'Warszawa','remote')
+
+    end_time = get_time()   
+
+    deltaTime = delta_time(start_time, end_time)
+    print(deltaTime,"[ms]")
+    
+        
+    return size, lista
    
 
 def req_5(catalog, city, fecha_inicial, fecha_final):
@@ -252,7 +250,7 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     start_time = get_time()   
     initial_Date = model.datetime.strptime(fecha_in, '%Y-%m-%d')
     final_Date = model.datetime.strptime(fecha_fin, '%Y-%m-%d')
-    total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],5,initial_Date,final_Date,1000,999999)
+    total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],5,initial_Date,final_Date,1000.0,999999.0)
     # calculando la diferencia en tiempo 
     #total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],n,fecha_in,fecha_fin,sal_min,sal_max)
 
