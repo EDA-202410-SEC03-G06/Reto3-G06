@@ -173,9 +173,18 @@ def print_req_5(control):
         memflag = False
     
     n= int(input('Ingrese la cantidad de ofertas que desea ver:  '))
+    minSize = int(input('Ingrese un minimo de tamaño: '))
+    maxSize = int(input('Ingrese un tamaño maximo: '))
+    skill = input('Ingrese una habilidad: ')
+    minLevel = int(input('Ingrese el nivel Minimo de la habilidad:'))
+    maxLevel = int(input('Ingrese el nivel maximo de habilidad: '))
     total, lista = controller.req_5(control, n, minSize, maxSize, skill, minLevel, maxLevel)
     
-    
+    print(f'El total de ofertas para empresas con un tamaño entre {minSize} y {maxSize} y requieran de la habilidad {skill} es: {total}')
+    for elem in lt.iterator(lista):
+        for dato in elem.keys():
+            print(dato,':',elem[dato],',',end="")
+            print('\n')
     
     
     

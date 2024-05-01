@@ -215,7 +215,7 @@ def req_4(control, n, city, workplace):
     return size, lista
    
 
-def req_5(catalog,n, minSize, maxSize, skill, minLevel, maxLevel, memflag):
+def req_5(catalog,n, minSize, maxSize, skill, minLevel, maxLevel, memflag=False):
     """
     Retorna el resultado del requerimiento 5
     """

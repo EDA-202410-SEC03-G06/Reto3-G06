@@ -140,18 +140,18 @@ def add_skills(catalog, skills):
         arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
         lista_id = lt.newList('ARRAY_LIST')
         lt.addLast(lista_id, skills['id'])
-        om.put(arbol_nivel, skills['level'], lista_id)
+        om.put(arbol_nivel, int(skills['level']), lista_id)
         mp.put(catalog['mapaHabilidad'], habilidad, arbol_nivel)
     else:
         pareja = mp.get(catalog['mapaHabilidad'], habilidad)
         arbol_nivel = me.getValue(pareja)
-        contiene_nivel = om.contains(arbol_nivel, skills['level'])
+        contiene_nivel = om.contains(arbol_nivel, int(skills['level']))
         if contiene_nivel == False:
             lista_id = lt.newList('ARRAY_LIST')
             lt.addLast(lista_id, skills['id'])
-            om.put(arbol_nivel, skills['level'], lista_id)
+            om.put(arbol_nivel, int(skills['level']), lista_id)
         else:
-            pareja_nivel = om.get(arbol_nivel, skills['level'])
+            pareja_nivel = om.get(arbol_nivel, int(skills['level']))
             lista_id_nivel = me.getValue(pareja_nivel)
             lt.addLast(lista_id_nivel, skills['id'])
     
@@ -477,12 +477,12 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
     #pasar los valores de listas a un diccionario con todos los valores que contienen
     for tamaño in lt.iterator(sizeRango):
         for idJob in lt.iterator(tamaño):
-            ofertaJob = me.get(mp.get(jobs, idJob))
+            ofertaJob = me.getValue(mp.get(jobs, idJob))
             mp.put(filtroSize, idJob, ofertaJob)
     
     for hab in lt.iterator(habilidadRango):
         for idJob in lt.iterator(hab):
-            ofertaJob = me.get(mp.get(jobs, idJob))
+            ofertaJob = me.getValue(mp.get(jobs, idJob))
             mp.put(filtroSkill, idJob, ofertaJob)
     #Comparar los dos mapas y si esta la oferta en ambos lo añade a ofertasFiltro y filtrar por los datos a presentar
     habilidades = mp.keySet(filtroSkill)
