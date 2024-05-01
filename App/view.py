@@ -132,7 +132,7 @@ def print_req_3(control):
     """
     # TODO: Imprimir el resultado del requerimiento 3
     pais = input('Escriba el nombre del pais')
-    n= input('Escriba el numero de ofertas:')
+    n= int(input('Escriba el numero de ofertas:'))
     exp=input('Escriba el nivel de exp:')
     return  controller.req_3(control,n,pais,exp)
     
@@ -171,15 +171,10 @@ def print_req_5(control):
         memflag = True
     else:
         memflag = False
-    ciudad= input("Escriba la ciudad que desea:  ")
-    fecha_inicial= input("Escriba la fecha inicial (más antigua):  ")
-    fecha_final= input("Escriba la fecha final (más reciente):  ")
-    total_ofertas, total_empresas, mayor, menor, ultima_respuesta= controller.req_5(control, ciudad, fecha_inicial, fecha_final)
-    print(f"El total de ofertas es: {total_ofertas}")
-    print(f"El total de empresas son: {total_empresas}")
-    print(f"La ciudad con mayor numero de ofertas es {mayor[0]} con un total de {mayor[1]}")
-    print(f"La ciudad con menor numero de ofertas es {menor[0]} con un total de {menor[1]}")
-    #print(ultima_respuesta)
+    
+    n= int(input('Ingrese la cantidad de ofertas que desea ver:  '))
+    total, lista = controller.req_5(control, n, minSize, maxSize, skill, minLevel, maxLevel)
+    
     
     
     

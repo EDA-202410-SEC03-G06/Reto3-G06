@@ -215,18 +215,18 @@ def req_4(control, n, city, workplace):
     return size, lista
    
 
-def req_5(catalog, city, fecha_inicial, fecha_final):
+def req_5(catalog,n, minSize, maxSize, skill, minLevel, maxLevel, memflag):
     """
     Retorna el resultado del requerimiento 5
     """
     # TODO: Modificar el requerimiento 5
     start_time= get_time()
-    memflag= True
+    
     if memflag is True:
         tracemalloc.start()
         start_memory= get_memory()
 
-    respuesta= model.req_5(catalog["model"], city, fecha_inicial, fecha_final)
+    respuesta= model.req_5(catalog["model"], n, minSize, maxSize, skill, minLevel, maxLevel)
     if memflag is True:
         stop_memory = get_memory()
         tracemalloc.stop()

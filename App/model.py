@@ -216,29 +216,19 @@ def add_jobs(catalog, data):
     
     #crear un arbol por tamaño de la empresa, si el tamaño es undefined este se categorizara con -1
     tamaño = data['company_size']
-    empresa = data['company_name']
+    
     if tamaño == 'Undefined':
         tamaño = -1
     else:
         tamaño = float(tamaño)
         
     if not om.contains(catalog['arbolTamaño'], tamaño):
-        mapa_companys = mp.newMap(1000,
-                                   maptype='CHAINING',
-                                   loadfactor=4,
-                                   cmpfunction=sort_criteria
-                                   )
-        om.put(catalog['arbolTamaño'], tamaño, mapa_companys)
+        lista_companys = lt.newList('ARRAY_LIST')
+        om.put(catalog['arbolTamaño'], tamaño, lista_companys)
     else:
-        mapa_companys = me.getValue(om.get(catalog['arbolTamaño'], tamaño))
+        lista_companys = me.getValue(om.get(catalog['arbolTamaño'], tamaño))
     
-    if not mp.contains(mapa_companys, empresa):
-        lista_empresa = lt.newList('ARRAY_LIST')
-        mp.put(mapa_companys, empresa, lista_empresa)
-    else:
-        pareja_empresa = mp.get(mapa_companys, empresa)
-        lista_empresa = me.getValue(pareja_empresa)
-    lt.addLast(lista_empresa, data)
+    lt.addLast(lista_companys, data['id'])
     
     #mapa por años, que va a dividirse dentro en nivel de experiencia, habilidades, o ubicación.
     anio = int(datetime.strftime(data['published_at'], '%Y'))
@@ -327,7 +317,8 @@ def add_employment_types(catalog, oferta):
         oferta['salary_from'] = -1
         oferta['currency_salary'] = "N/A"
     skills = me.getValue(mp.get(catalog['skills'], oferta['id']))
-    datos_oferta = me.getValue(mp.get(catalog['jobs'], oferta['id']))
+    parejaId = mp.get(catalog['jobs'], oferta['id'])
+    datos_oferta = me.getValue(parejaId)
     datos_oferta['salary_from'] = oferta['salary_from']
     datos_oferta['skills'] = skills['name']
     if not om.contains(catalog['arbolSalary'], oferta['salary_from']):
@@ -424,7 +415,7 @@ def req_3(data_structs, n, pais, exp):
         datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
                  'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
                  'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
-                 'Salary':oferta_emp['salary_to'],'Skill':oferta_skill['name']}
+                 'Salary':oferta['salary_from'],'Skill':oferta['skills']}
         lt.addLast(ofertas_filtro,datos)
     return (lt.size(valores),ofertas_filtro)
 
@@ -468,14 +459,55 @@ def req_4(data_structs,n,ciudad,workplace):
     
 
 
-def req_5(data_structs):
+def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
     """
     Función que soluciona el requerimiento 5
     """
     # TODO: Realizar el requerimiento 5
-    pass
-
-
+    filtroSize = mp.newMap()
+    filtroSkill = mp.newMap()
+    jobs = catalog['jobs']
+    skills = catalog['mapaHabilidad']
+    size = catalog['arbolTamaño']
+    sizeRango = om.values(size, minSize, maxSize)
+    
+    habilidad = me.getValue(mp.get(skills, skill))
+    habilidadRango = om.values(habilidad, minLevel, maxLevel)
+    
+    #pasar los valores de listas a un diccionario con todos los valores que contienen
+    for tamaño in lt.iterator(sizeRango):
+        for idJob in lt.iterator(tamaño):
+            ofertaJob = me.get(mp.get(jobs, idJob))
+            mp.put(filtroSize, idJob, ofertaJob)
+    
+    for hab in lt.iterator(habilidadRango):
+        for idJob in lt.iterator(hab):
+            ofertaJob = me.get(mp.get(jobs, idJob))
+            mp.put(filtroSkill, idJob, ofertaJob)
+    #Comparar los dos mapas y si esta la oferta en ambos lo añade a ofertasFiltro y filtrar por los datos a presentar
+    habilidades = mp.keySet(filtroSkill)
+    ofertasFiltro = lt.newList('ARRAY_LIST')
+    for skillId in lt.iterator(habilidades):
+        if mp.contains(filtroSize, skillId):
+            oferta = me.getValue(mp.get(filtroSize, skillId))
+            datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
+                 'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
+                 'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
+                 'Salary':oferta['salary_from'],'Skill':oferta['skills']}
+            lt.addLast(ofertasFiltro, datos)
+            
+    tamaño = lt.size(ofertasFiltro)
+    merg.sort(ofertasFiltro, sort_criteria_req5)
+    conteo = 0
+    oferta_final = lt.newList('ARRAY_LIST')
+    for offer in lt.iterator(ofertasFiltro):
+        lt.addLast(oferta_final, offer)
+        conteo +=1
+        if conteo == n:
+            break
+        
+    return tamaño, ofertasFiltro
+    
 def req_6(catalog,n,fecha_in,fecha_fin,sal_min:float,sal_max:float):
     """
     Función que soluciona el requerimiento 6
@@ -563,6 +595,8 @@ def req_7(catalog, año, pais, conteo):
     totalOfertas = me.getValue(mp.get(paisesAño,'total'))
     paisConteos =me.getValue(mp.get(paisesAño, pais))
     tipoConteo = paisConteos[conteo]
+    
+    filtro = lt.newList('ARRAY_LIST')
     
     ejes = mp.keySet(tipoConteo)
     valores = []
@@ -676,3 +710,14 @@ def sort(data_1,data_2):
 def sort_criteria_req6(data_1,data_2):
     return data_1['count']>data_2['count']
 
+def sort_criteria_req5(data1, data_2):
+    
+    fecha1 = data1['Date']
+    fecha2 = data1['Date']
+    
+    if fecha1 == fecha2:
+        return 0
+    elif fecha1> fecha2:
+        return -1
+    else:
+        return 1
