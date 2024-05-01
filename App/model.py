@@ -469,11 +469,11 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
     jobs = catalog['jobs']
     skills = catalog['mapaHabilidad']
     size = catalog['arbolTamaño']
-    sizeRango = om.values(size, minSize, maxSize)
+    sizeRango = om.values(size, maxSize, minSize)
     
     habilidad = me.getValue(mp.get(skills, skill))
     habilidadRango = om.values(habilidad, minLevel, maxLevel)
-    
+    print(sizeRango)
     #pasar los valores de listas a un diccionario con todos los valores que contienen
     for tamaño in lt.iterator(sizeRango):
         for idJob in lt.iterator(tamaño):

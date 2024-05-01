@@ -226,7 +226,9 @@ def req_5(catalog,n, minSize, maxSize, skill, minLevel, maxLevel, memflag=False)
         tracemalloc.start()
         start_memory= get_memory()
 
-    respuesta= model.req_5(catalog["model"], n, minSize, maxSize, skill, minLevel, maxLevel)
+    #respuesta= model.req_5(catalog["model"], n, minSize, maxSize, skill, minLevel, maxLevel)
+    respuesta= model.req_5(catalog["model"], 5, 50, 100, 'CYBERSECURITY', 1, 5)
+    
     if memflag is True:
         stop_memory = get_memory()
         tracemalloc.stop()
