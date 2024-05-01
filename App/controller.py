@@ -250,9 +250,8 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     start_time = get_time()   
     initial_Date = model.datetime.strptime(fecha_in, '%Y-%m-%d')
     final_Date = model.datetime.strptime(fecha_fin, '%Y-%m-%d')
-    total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],5,initial_Date,final_Date,1000.0,999999.0)
     # calculando la diferencia en tiempo 
-    #total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],n,fecha_in,fecha_fin,sal_min,sal_max)
+    total, total_ciudades, n_ciudades, ofertas_ciudad= model.req_6(catalog['model'],n,initial_Date,final_Date,sal_min,sal_max)
 
      
     end_time = get_time()   

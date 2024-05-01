@@ -498,10 +498,10 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min:float,sal_max:float):
     for lista in lt.iterator(lst):
         for oferta in lt.iterator(lista):
             ispresent =mp.contains(salarios,oferta['id'])
-            #crear una lista de ofertas por ciudad
             if ispresent:
                 lt.addLast(ofertas,oferta)
-                    
+        #crear una lista de ofertas por ciudad
+           
             incitylist = mp.contains(ciudades,oferta['city'])
             if incitylist==False:
                 mp.put(ciudades,oferta['city'], 1)
@@ -526,10 +526,12 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min:float,sal_max:float):
             lt.addLast(n_ciudades,city['city'])
         else:
             break
-    merg.sort(n_ciudades,sort)
-        
-    #crear el formato para la lista
     ciudad_1 = lt.firstElement(n_ciudades)
+    merg.sort(n_ciudades,sort)
+    
+    #crear el formato para la lista
+    
+    merg.sort(ofertas,compare)
     for oferta in lt.iterator(ofertas):
         if oferta['city']==ciudad_1:
             pareja_emp = mp.get(emptype,oferta['id'])
@@ -543,7 +545,7 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min:float,sal_max:float):
             lt.addLast(ofertas_ciudad,datos)
 
 
-    return (lt.size(ofertas),lt.size(city_list),n_ciudades,ofertas_ciudad)
+    return (lt.size(ofertas),lt.size(city_list),n_ciudades,(ciudad_1,ofertas_ciudad))
     
     
         
