@@ -204,10 +204,15 @@ def print_req_6(control):
 
     print('El total de ciudades que cumplen el requisito son:',cantidad_ciudades)
     print('El total de ofertas que cumplen el requisito son:',total)
-    print('Las n ciudades con mas ofertas son:',ofertas[2])
-    for oferta in oferta[3]['elements']:
+    print('Las n ciudades con mas ofertas son:',ofertas[2]['elements'])
+    print('Las ofertas de la ciudad con mas ofertas:')
+    count =1
+    for oferta in ofertas[3]['elements']:
         for key in oferta.keys():
             print(key,':',oferta[key])
+        if count >5:
+            break
+        count+=1
    
 
 def print_req_7(control):

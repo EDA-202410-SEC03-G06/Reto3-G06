@@ -476,7 +476,7 @@ def req_5(data_structs):
     pass
 
 
-def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
+def req_6(catalog,n,fecha_in,fecha_fin,sal_min:float,sal_max:float):
     """
     Función que soluciona el requerimiento 6
     """
@@ -486,13 +486,13 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     salarios = mp.newMap()
     ciudades = mp.newMap()
     n_ciudades = lt.newList("ARRAY_LIST")
-    ofertas_ciudad = lt.newList()
+    ofertas_ciudad = lt.newList('ARRAY_LIST')
     
     #filtrar los datos
-    lst = om.keys(catalog["arbolFecha"], fecha_in, fecha_fin)
+    lst = om.values(catalog["arbolFecha"], fecha_fin, fecha_in)
     lst_salario = om.values(catalog['arbolSalary'],sal_min,sal_max)
     for value in lt.iterator(lst_salario):
-        for oferta in value:
+        for oferta in lt.iterator(value):
             mp.put(salarios,oferta['id'],oferta)
     
     for lista in lt.iterator(lst):
@@ -518,7 +518,7 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min,sal_max):
     for city in lt.iterator(city_list):
         pareja = mp.get(ciudades,city)  
         valor = me.getValue(pareja)
-        lt.addLast(city_list,{'city':city,'count':valor})
+        lt.addLast(ordered_city,{'city':city,'count':valor})
     merg.sort(ordered_city,sort_criteria_req6)  
 
     for city in lt.iterator(ordered_city):
@@ -669,7 +669,7 @@ def sort(data_1,data_2):
     Función encargada de ordenar la lista con los datos
     """
     #TODO: Crear función de ordenamiento
-    return data_1>data_2
+    return data_1<data_2
 
 def sort_criteria_req6(data_1,data_2):
     return data_1['count']>data_2['count']
