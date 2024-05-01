@@ -184,8 +184,7 @@ def req_3(control,n,pais,exp):
     start_time = get_time()
   
 
-    #size, lista = model.req_3(control['model'],n,pais,exp)
-    size, lista = model.req_3(control['model'],5,'PL','junior')
+    size, lista = model.req_3(control['model'],n,pais,exp)
 
     end_time = get_time()   
 
