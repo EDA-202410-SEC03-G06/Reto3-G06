@@ -94,7 +94,20 @@ def print_req_1(control):
     final_Date = input('Ingrese una fecha final: ')
     result = controller.req_1(control, initial_Date, final_Date)
     print('El total de ofertas en ese rango de fechas es de: '+ str(result[0]))
-
+    oferta1 = lt.lastElement(lt.firstElement(result[1]))
+    print(f'''Los datos de la primera oferta son: 
+Fecha publicación oferta:  {datetime.strftime(oferta1['published_at'], '%Y-%m-%d')}
+Título de la oferta: {oferta1['title']}
+Nombre de la empresa de la oferta: {oferta1['company_name']}
+Nivel de experticia de la oferta: {oferta1['experience_level']}
+País de la empresa de la oferta: {oferta1['country_code']}
+Ciudad de la empresa de la oferta: {oferta1['city']}
+Tamaño de la empresa de la oferta: {oferta1['company_size']}
+Tipo de ubicación de trabajo (remote, partialy, remote, office): {oferta1['workplace_type']}
+Salario mínimo ofertado: {oferta1['salary_from']}
+Habilidades solicitadas: {oferta1['skills']}
+''')
+    
 
 def print_req_2(control):
     """
@@ -183,8 +196,8 @@ def print_req_5(control):
     print(f'El total de ofertas para empresas con un tamaño entre {minSize} y {maxSize} y requieran de la habilidad {skill} es: {total}')
     for elem in lt.iterator(lista):
         for dato in elem.keys():
-            print(dato,':',elem[dato],',',end="")
-            print('\n')
+            print(dato+':',str(elem[dato])+', ',end="")
+        print('\n')
     
     
     

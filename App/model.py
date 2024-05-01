@@ -92,7 +92,7 @@ def new_data_structs(tipo):
                                    cmpfunction=sort_criteria
                                    )
     
-    catalog['arbolFecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
+    catalog['arbolFecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
     
     catalog['mapaPais'] = mp.newMap(10000,
                                    maptype='CHAINING',
@@ -104,7 +104,7 @@ def new_data_structs(tipo):
                                    loadfactor=4,
                                    cmpfunction=sort_criteria
                                    )
-    catalog['arbolTamaño'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
+    catalog['arbolTamaño'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
     
     catalog['arbolSalary'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
     
@@ -326,8 +326,10 @@ def add_employment_types(catalog, oferta):
         om.put(catalog['arbolSalary'], oferta['salary_from'], listaSalario)
     else:
         listaSalario = me.getValue(om.get(catalog['arbolSalary'], oferta['salary_from']))
+    if oferta['salary_from'] == -1:
+        oferta['salary_from'] = 'UNKNOWN'
     lt.addLast(listaSalario, datos_oferta)
-    
+
     mp.put(catalog['employment-types'], oferta['id'], oferta)
 
 def new_data(id, info):
@@ -363,7 +365,7 @@ def req_1(catalog, initialDate, finalDate):
     """
     # TODO: Realizar el requerimiento 1
     lst = om.values(catalog["arbolFecha"], initialDate, finalDate)
-    print(lt.size(lst))
+    
     totjobs = 0
     for date in lt.iterator(lst):
         totjobs += lt.size(date)
@@ -469,11 +471,11 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
     jobs = catalog['jobs']
     skills = catalog['mapaHabilidad']
     size = catalog['arbolTamaño']
-    sizeRango = om.values(size, maxSize, minSize)
+    sizeRango = om.values(size, minSize, maxSize)
     
     habilidad = me.getValue(mp.get(skills, skill))
     habilidadRango = om.values(habilidad, minLevel, maxLevel)
-    print(sizeRango)
+    
     #pasar los valores de listas a un diccionario con todos los valores que contienen
     for tamaño in lt.iterator(sizeRango):
         for idJob in lt.iterator(tamaño):
