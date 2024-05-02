@@ -189,11 +189,9 @@ def add_jobs(catalog, data):
     ciudad = data['city']
     work_type = data['workplace_type']
     if not mp.contains(catalog['mapaCiudad'], ciudad):
-        fecha_ubicacion = {'fecha': None,
-                           'ubicacion': None,
+        fecha_ubicacion = {'ubicacion': None,
                            'todos': None
                            }
-        fecha_ubicacion['fecha'] = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_date)
         fecha_ubicacion['ubicacion'] = {}
         fecha_ubicacion['ubicacion']['remote'] = lt.newList('ARRAY_LIST')
         fecha_ubicacion['ubicacion']['partly_remote'] = lt.newList('ARRAY_LIST')
@@ -202,12 +200,7 @@ def add_jobs(catalog, data):
         fecha_ubicacion['todos'] = lt.newList('ARRAY_LIST')
         mp.put(catalog['mapaCiudad'], ciudad, fecha_ubicacion)
     mapa = me.getValue(mp.get(catalog['mapaCiudad'], ciudad))
-    if not om.contains(mapa['fecha'], data['published_at']):
-        lista_fecha_ciudad = lt.newList('ARRAY_LIST')
-        om.put(mapa['fecha'], data['published_at'], lista_fecha_ciudad)
-    else:
-        lista_fecha_ciudad = me.getValue(om.get(mapa['fecha'], data['published_at']))
-    lt.addLast(lista_fecha_ciudad, data)
+    
     lt.addLast(mapa['ubicacion'][work_type], data)
     lt.addLast(mapa['todos'], data)
     
