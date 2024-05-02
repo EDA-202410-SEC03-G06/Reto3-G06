@@ -208,7 +208,7 @@ def req_4(control, n, city, workplace):
     start_time = get_time()
   
     
-    size, lista = model.req_4(control['model'],n,city,workplace)
+    cantidad, lista_final = model.req_4(control['model'],n,city,workplace)
 
     end_time = get_time()   
 
@@ -216,7 +216,7 @@ def req_4(control, n, city, workplace):
     print(deltaTime,"[ms]")
     
         
-    return size, lista
+    return cantidad, lista_final
    
 
 def req_5(catalog,n, minSize, maxSize, skill, minLevel, maxLevel, memflag=False):

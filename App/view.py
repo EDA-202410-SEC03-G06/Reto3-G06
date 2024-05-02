@@ -182,11 +182,10 @@ def print_req_4(control):
     # TODO: Imprimir el resultado del requerimiento 4
     
     numero_de_ofertas = input("Escriba el número de ofertas para la consulta: ")
-    ciudad = input("Escriba el nombre de la ciudad para la consulta")
+    ciudad = input("Escriba el nombre de la ciudad para la consulta:  ")
     tipo_trabajo = input("Escriba el tipo de ubicación de trabajo (remote, partialy, office...)")
-    numero_ofertas, ofertas_publicadas= controller.req_4(control, numero_de_ofertas, ciudad, tipo_trabajo)
-    print(f"El total de ofertas es: {numero_ofertas}")
-    print(f"Las ofertas publicadas que cumplen con la condición son:: {ofertas_publicadas}")
+    return  controller.req_4(control, numero_de_ofertas, ciudad, tipo_trabajo)
+    
     
     
     
