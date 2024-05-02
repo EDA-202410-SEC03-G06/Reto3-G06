@@ -209,7 +209,7 @@ def req_4(control, n, city, workplace):
     start_time = get_time()
   
     #size, lista = model.req_3(control['model'],n,city,workplace)
-    size, lista = model.req_3(control['model'],5,'Warszawa','remote')
+    size, lista = model.req_3(control['model'],n,city,workplace)
 
     end_time = get_time()   
 
@@ -230,7 +230,7 @@ def req_5(catalog,n, minSize, maxSize, skill, minLevel, maxLevel, memflag=False)
     
 
     #respuesta= model.req_5(catalog["model"], n, minSize, maxSize, skill, minLevel, maxLevel)
-    respuesta= model.req_5(catalog["model"], 5, 50, 100, 'CYBERSECURITY', 1, 5)
+    respuesta= model.req_5(catalog["model"], n, minSize, maxSize, skill, minLevel, maxLevel)
     
    
         

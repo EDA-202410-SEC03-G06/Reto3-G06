@@ -488,15 +488,14 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
     ofertasFiltro = lt.newList('ARRAY_LIST')
     for skillId in lt.iterator(habilidades):
         if mp.contains(filtroSize, skillId):
-            oferta = me.getValue(mp.get(filtroSize, skillId))
+            oferta = me.getValue(mp.get(catalog['jobs'], skillId))
             datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
                  'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
                  'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
-                 'Salary':oferta['salary_from'],'Skill':skill}
+                 'Salary':oferta['salary_from'],'Skill': oferta['skill']}
             lt.addLast(ofertasFiltro, datos)
             
     tamaño = lt.size(ofertasFiltro)
-    merg.sort(ofertasFiltro, sort_criteria_req5)
     conteo = 0
     oferta_final = lt.newList('ARRAY_LIST')
     for offer in lt.iterator(ofertasFiltro):
