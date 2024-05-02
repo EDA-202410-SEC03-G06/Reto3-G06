@@ -135,9 +135,14 @@ def req_1(control, initial_Date, final_Date):
     """
     Retorna el resultado del requerimiento 1
     """
+    
     initial_Date = model.datetime.strptime(initial_Date, '%Y-%m-%d')
     final_Date = model.datetime.strptime(final_Date, '%Y-%m-%d')
+    start_time = get_time()
     totjobs, lista1 = model.req_1(control['model'], initial_Date, final_Date)
+    end_time = get_time()
+    deltaTime = delta_time(start_time, end_time)
+    print(deltaTime,"[ms]")
     return totjobs, lista1
     
     
@@ -204,7 +209,7 @@ def req_4(control, n, city, workplace):
     start_time = get_time()
   
     #size, lista = model.req_3(control['model'],n,city,workplace)
-    size, lista = model.req_3(control['model'],5,'Warszawa','remote')
+    size, lista = model.req_3(control['model'],n,city,workplace)
 
     end_time = get_time()   
 
@@ -222,16 +227,12 @@ def req_5(catalog,n, minSize, maxSize, skill, minLevel, maxLevel, memflag=False)
     # TODO: Modificar el requerimiento 5
     start_time= get_time()
     
-    if memflag is True:
-        tracemalloc.start()
-        start_memory= get_memory()
+    
 
     #respuesta= model.req_5(catalog["model"], n, minSize, maxSize, skill, minLevel, maxLevel)
-    respuesta= model.req_5(catalog["model"], 5, 50, 100, 'CYBERSECURITY', 1, 5)
+    respuesta= model.req_5(catalog["model"], n, minSize, maxSize, skill, minLevel, maxLevel)
     
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
+   
         
     
     end_time= get_time()
@@ -272,15 +273,9 @@ def req_7(control, año, pais, conteo, memflag):
     """
     # TODO: Modificar el requerimiento 7
     start_time = get_time()
-    if memflag is True:
-        tracemalloc.start()
-        start_memory = get_memory()
+    
     ofertas = model.req_7(control['model'], año, pais, conteo)
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
-        Delta_memory = delta_memory(stop_memory, start_memory)
-        print("Memoria [kB]: ",Delta_memory)
+    
     end_time = get_time()
     deltaTime =delta_time(start_time,end_time)
     print(deltaTime, "[ms]")
