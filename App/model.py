@@ -135,29 +135,26 @@ def add_skills(catalog, skills):
     Función para agregar nuevos elementos a la lista
     """
     habilidad = skills['name']
-    contiene = mp.contains(catalog['mapaHabilidad'], habilidad)
-    if contiene == False:
-        arbol_nivel = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
-        lista_id = lt.newList('ARRAY_LIST')
-        lt.addLast(lista_id, skills['id'])
-        om.put(arbol_nivel, int(skills['level']), lista_id)
-        mp.put(catalog['mapaHabilidad'], habilidad, arbol_nivel)
+    nivel = int(skills['level'])
+    if not mp.contains(catalog['mapaHabilidad'], habilidad):
+        arbolNivel = om.newMap(omaptype='RBT',cmpfunction=sort_criteria_salary)
+        mp.put(catalog['mapaHabilidad'], habilidad, arbolNivel)
     else:
-        pareja = mp.get(catalog['mapaHabilidad'], habilidad)
-        arbol_nivel = me.getValue(pareja)
-        contiene_nivel = om.contains(arbol_nivel, int(skills['level']))
-        if contiene_nivel == False:
-            lista_id = lt.newList('ARRAY_LIST')
-            lt.addLast(lista_id, skills['id'])
-            om.put(arbol_nivel, int(skills['level']), lista_id)
-        else:
-            pareja_nivel = om.get(arbol_nivel, int(skills['level']))
-            lista_id_nivel = me.getValue(pareja_nivel)
-            lt.addLast(lista_id_nivel, skills['id'])
+        arbolNivel = me.getValue(om.get(catalog['mapaHabilidad'], habilidad))
     
+    if not om.contains(arbolNivel, nivel):
+        listaNivel = lt.newList('ARRAY_LIST')
+        om.put(arbolNivel, nivel, listaNivel)
+    else:
+        listaNivel = me.getValue(om.get(arbolNivel, nivel))
+    lt.addLast(listaNivel, skills['id'])
+        
     mp.put(catalog['skills'],skills['id'],skills)
 
 def add_jobs(catalog, data):
+    
+    #Agregar la categoria skill a los datos y agregarlos a catalog jobs
+    data['skills'] = me.getValue(mp.get(catalog['skills'], data['id']))
     mp.put(catalog['jobs'], data['id'], data)
     # Se crea un arbol, cuyas llaves son la fecha en la que se publicaron y sus valores son una lista de datos. 
     fecha = data['published_at']
@@ -495,7 +492,7 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
             datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
                  'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
                  'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
-                 'Salary':oferta['salary_from'],'Skill':oferta['skills']}
+                 'Salary':oferta['salary_from'],'Skill':skill}
             lt.addLast(ofertasFiltro, datos)
             
     tamaño = lt.size(ofertasFiltro)
@@ -508,7 +505,7 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
         if conteo == n:
             break
         
-    return tamaño, ofertasFiltro
+    return tamaño, oferta_final
     
 def req_6(catalog,n,fecha_in,fecha_fin,sal_min:float,sal_max:float):
     """

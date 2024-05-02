@@ -94,7 +94,7 @@ def print_req_1(control):
     final_Date = input('Ingrese una fecha final: ')
     result = controller.req_1(control, initial_Date, final_Date)
     print('El total de ofertas en ese rango de fechas es de: '+ str(result[0]))
-    oferta1 = lt.lastElement(lt.firstElement(result[1]))
+    oferta1 = lt.firstElement(lt.firstElement(result[1]))
     print(f'''Los datos de la primera oferta son: 
 Fecha publicación oferta:  {datetime.strftime(oferta1['published_at'], '%Y-%m-%d')}
 Título de la oferta: {oferta1['title']}
@@ -107,7 +107,19 @@ Tipo de ubicación de trabajo (remote, partialy, remote, office): {oferta1['work
 Salario mínimo ofertado: {oferta1['salary_from']}
 Habilidades solicitadas: {oferta1['skills']}
 ''')
-    
+    oferta1 = lt.lastElement(lt.lastElement(result[1]))
+    print(f'''Los datos de la primera oferta son: 
+Fecha publicación oferta:  {datetime.strftime(oferta1['published_at'], '%Y-%m-%d')}
+Título de la oferta: {oferta1['title']}
+Nombre de la empresa de la oferta: {oferta1['company_name']}
+Nivel de experticia de la oferta: {oferta1['experience_level']}
+País de la empresa de la oferta: {oferta1['country_code']}
+Ciudad de la empresa de la oferta: {oferta1['city']}
+Tamaño de la empresa de la oferta: {oferta1['company_size']}
+Tipo de ubicación de trabajo (remote, partialy, remote, office): {oferta1['workplace_type']}
+Salario mínimo ofertado: {oferta1['salary_from']}
+Habilidades solicitadas: {oferta1['skills']}
+''')
 
 def print_req_2(control):
     """
@@ -123,7 +135,7 @@ def print_req_2(control):
     maxSalary = float(input('Ingrese el salario maximo: '))
     total, lst = controller.req_2(control, minSalary, maxSalary, memflag)
     print(f'El total de ofertas en el rango de {minSalary}-{maxSalary} es de: {total}')
-    oferta1 = lt.lastElement(lt.firstElement(lst))
+    oferta1 = lt.firstElement(lt.firstElement(lst))
     print(f'''Los datos de la primera oferta son: 
 Fecha publicación oferta:  {datetime.strftime(oferta1['published_at'], '%Y-%m-%d')}
 Título de la oferta: {oferta1['title']}
@@ -136,7 +148,19 @@ Tipo de ubicación de trabajo (remote, partialy, remote, office): {oferta1['work
 Salario mínimo ofertado: {oferta1['salary_from']}
 Habilidades solicitadas: {oferta1['skills']}
 ''')
-    
+    oferta1 = lt.lastElement(lt.lastElement(lst))
+    print(f'''Los datos de la primera oferta son: 
+Fecha publicación oferta:  {datetime.strftime(oferta1['published_at'], '%Y-%m-%d')}
+Título de la oferta: {oferta1['title']}
+Nombre de la empresa de la oferta: {oferta1['company_name']}
+Nivel de experticia de la oferta: {oferta1['experience_level']}
+País de la empresa de la oferta: {oferta1['country_code']}
+Ciudad de la empresa de la oferta: {oferta1['city']}
+Tamaño de la empresa de la oferta: {oferta1['company_size']}
+Tipo de ubicación de trabajo (remote, partialy, remote, office): {oferta1['workplace_type']}
+Salario mínimo ofertado: {oferta1['salary_from']}
+Habilidades solicitadas: {oferta1['skills']}
+''')
 
 
 def print_req_3(control):
