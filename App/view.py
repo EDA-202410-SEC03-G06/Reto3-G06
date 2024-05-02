@@ -180,23 +180,16 @@ def print_req_4(control):
         Función que imprime la solución del Requerimiento 4 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 4
-    mem = int(input('Quiere observar el uso de memoria?\n 1: Si\n 2: No'))
-    if mem == 1:
-        memflag = True
-    else:
-        memflag = False
-    country = input("Escriba el codigo de país: ")
-    f_inicio = input("La fecha inicial del periodo a consultar (con formato 'año-mes-dia'):")
-    f_fin = input("La fecha final del periodo a consultar (con formato 'año-mes-dia'):")
-    total_ofertas, total_empresas, total_ciudades, ciudad_mayor, ciudad_menor, catalogo = controller.req_4(control, country, f_inicio, f_fin, memflag)
-    print(f"El total de ofertas es: {total_ofertas}")
-    print(f"El total de empresas son: {total_empresas}")
-    print(f"El total de ciudades son: {total_ciudades}")
-    print(f"La ciudad con mayor numero de ofertas es {ciudad_mayor[0]} con un total de {ciudad_mayor[1]}")
-    print(f"La ciudad con menor numero de ofertas es {ciudad_menor[0]} con un total de {ciudad_menor[1]}")
+    
+    numero_de_ofertas = input("Escriba el número de ofertas para la consulta: ")
+    ciudad = input("Escriba el nombre de la ciudad para la consulta")
+    tipo_trabajo = input("Escriba el tipo de ubicación de trabajo (remote, partialy, office...)")
+    numero_ofertas, ofertas_publicadas= controller.req_4(control, numero_de_ofertas, ciudad, tipo_trabajo)
+    print(f"El total de ofertas es: {numero_ofertas}")
+    print(f"Las ofertas publicadas que cumplen con la condición son:: {ofertas_publicadas}")
     
     
-    print(tabulate(catalogo['elements'][:5]))
+    
 
 def print_req_5(control):
     """

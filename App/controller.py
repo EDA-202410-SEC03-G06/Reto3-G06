@@ -205,11 +205,10 @@ def req_4(control, n, city, workplace):
     """
     Retorna el resultado del requerimiento 4
     """
-    # TODO: Modificar el requerimiento 4
     start_time = get_time()
   
-    #size, lista = model.req_3(control['model'],n,city,workplace)
-    size, lista = model.req_3(control['model'],n,city,workplace)
+    
+    size, lista = model.req_4(control['model'],n,city,workplace)
 
     end_time = get_time()   
 
