@@ -415,7 +415,7 @@ def req_3(data_structs, n, pais, exp):
         datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
                  'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
                  'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
-                 'Salary':oferta['salary_from'],'Skill':oferta['skills']}
+                 'Salary':oferta_emp['salary_from'],'Skill':oferta_skill['skills']}
         lt.addLast(ofertas_filtro,datos)
     return (lt.size(valores),ofertas_filtro)
 
