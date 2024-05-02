@@ -480,9 +480,9 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
             mp.put(filtroSize, idJob, ofertaJob)
     
     for hab in lt.iterator(habilidadRango):
-        for idJob in lt.iterator(hab):
-            ofertaJob = me.getValue(mp.get(jobs, idJob))
-            mp.put(filtroSkill, idJob, ofertaJob)
+        for idSkill in lt.iterator(hab):
+            ofertaSkill = me.getValue(mp.get(jobs, idSkill))
+            mp.put(filtroSkill, idSkill, ofertaSkill)
     #Comparar los dos mapas y si esta la oferta en ambos lo añade a ofertasFiltro y filtrar por los datos a presentar
     habilidades = mp.keySet(filtroSkill)
     ofertasFiltro = lt.newList('ARRAY_LIST')
@@ -492,7 +492,7 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
             datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
                  'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
                  'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
-                 'Salary':oferta['salary_from'],'Skill': oferta['skills']}
+                 'Salary':oferta['salary_from'],'Skill': skill}
             lt.addLast(ofertasFiltro, datos)
             
     tamaño = lt.size(ofertasFiltro)
