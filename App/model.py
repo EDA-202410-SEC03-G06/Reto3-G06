@@ -492,7 +492,7 @@ def req_5(catalog, n, minSize, maxSize, skill, minLevel, maxLevel):
             datos = {'Date':oferta['published_at'],'Title':oferta['title'],'Company_name':oferta['company_name'],
                  'Experience':oferta['experience_level'],'Country':oferta['country_code'],'City':oferta['city'],
                  'Company Size':oferta['company_size'],'Workplace':oferta['workplace_type'],
-                 'Salary':oferta['salary_from'],'Skill': oferta['skill']}
+                 'Salary':oferta['salary_from'],'Skill': oferta['skills']}
             lt.addLast(ofertasFiltro, datos)
             
     tamaño = lt.size(ofertasFiltro)
