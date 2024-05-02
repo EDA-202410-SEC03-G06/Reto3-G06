@@ -520,7 +520,7 @@ def req_6(catalog,n,fecha_in,fecha_fin,sal_min:float,sal_max:float):
     ofertas_ciudad = lt.newList('ARRAY_LIST')
     
     #filtrar los datos
-    lst = om.values(catalog["arbolFecha"], fecha_fin, fecha_in)
+    lst = om.values(catalog["arbolFecha"], fecha_in, fecha_fin)
     lst_salario = om.values(catalog['arbolSalary'],sal_min,sal_max)
     for value in lt.iterator(lst_salario):
         for oferta in lt.iterator(value):
@@ -712,7 +712,7 @@ def sort_criteria_req6(data_1,data_2):
 def sort_criteria_req5(data1, data_2):
     
     fecha1 = data1['Date']
-    fecha2 = data1['Date']
+    fecha2 = data_2['Date']
     
     if fecha1 == fecha2:
         return 0
